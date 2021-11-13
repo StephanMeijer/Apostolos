@@ -11,6 +11,15 @@
     "psr/log": {
         "version": "2.0.0"
     },
+    "sabre/uri": {
+        "version": "2.2.2"
+    },
+    "sabre/vobject": {
+        "version": "4.3.7"
+    },
+    "sabre/xml": {
+        "version": "2.2.5"
+    },
     "symfony/cache": {
         "version": "v5.3.10"
     },
