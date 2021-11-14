@@ -37,3 +37,5 @@ jobs:
       env:
         DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
       run: vendor/bin/phpunit
+
+    - uses: codecov/codecov-action@v2
