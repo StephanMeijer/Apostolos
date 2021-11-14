@@ -1,4 +1,7 @@
 {
+    "nikic/php-parser": {
+        "version": "v4.13.1"
+    },
     "psr/cache": {
         "version": "2.0.0"
     },
@@ -10,6 +13,9 @@
     },
     "psr/log": {
         "version": "2.0.0"
+    },
+    "psy/psysh": {
+        "version": "v0.10.9"
     },
     "sabre/uri": {
         "version": "2.2.2"

@@ -4,7 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "sabre/vobject": "^4.3",
@@ -17,6 +17,7 @@
         "symfony/yaml": "5.3.*"
     },
     "require-dev": {
+        "psy/psysh": "^0.10.9"
     },
     "config": {
         "optimize-autoloader": true,
