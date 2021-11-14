@@ -37,7 +37,7 @@ class CalendarServiceTest extends KernelTestCase
 
         $calendarService = new CalendarService($http, new EventFactory(), $config, 'some-path');
 
-        $events = $calendarService->getEvents($calName);
+        $events = $calendarService->getEvents($calName, '2021', '11');
 
         $this->assertContainsOnlyInstancesOf(Event::class, $events);
         $this->assertCount(3, $events);

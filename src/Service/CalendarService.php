@@ -41,7 +41,7 @@ class CalendarService {
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function getEvents(string $name): array
+    public function getEvents(string $name, string $year, string $month): array
     {
         $calendar = VObject\Reader::read(
             $this
@@ -51,7 +51,7 @@ class CalendarService {
         );
 
         if (!empty($calendar->validate())) {
-            throw new InvalidArgumentException('Calendar seems to be invalid.');
+            throw new InvalidArgumentException('Calendar seems to be invalid.: ');
         }
 
         // @TODO refactor into factory and test
@@ -62,6 +62,20 @@ class CalendarService {
             $calendar->select("VEVENT")
         );
 
-        return $events;
+        $events = array_filter(
+            $events,
+            function (Event $event) use ($year, $month): bool {
+                return
+                    $month === $event
+                        ->start
+                        ->format('m') &&
+
+                    $year === $event
+                        ->start
+                        ->format('Y');
+            }
+        );
+
+        return array_values($events);
     }
 }

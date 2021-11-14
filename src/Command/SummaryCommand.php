@@ -55,20 +55,10 @@ class SummaryCommand extends Command
             throw new InvalidArgumentException('Cannot be in future');
         }
 
-        $events = $this->calendarService->getEvents($input->getArgument('calendar'));
-
-        $events = array_filter(
-            $events,
-            function (Event $event) use ($year, $month): bool {
-                return
-                    $month === $event
-                                    ->start
-                                    ->format('m') &&
-
-                    $year === $event
-                                    ->start
-                                    ->format('Y');
-            }
+        $events = $this->calendarService->getEvents(
+            $input->getArgument('calendar'),
+            $year,
+            $month
         );
 
         $days = [];
