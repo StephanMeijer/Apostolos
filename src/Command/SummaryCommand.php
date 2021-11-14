@@ -7,7 +7,6 @@ use Exception;
 
 use App\DataStructure\Event;
 use App\Service\CalendarService;
-use App\Factory\EventFactory;
 
 use InvalidArgumentException;
 use Sabre\VObject\Component\VEvent;
@@ -24,7 +23,6 @@ class SummaryCommand extends Command
     protected static $defaultName = 'time:summary';
 
     public function __construct(
-        protected EventFactory    $eventFactory,
         protected CalendarService $calendarService
     )
     {
@@ -57,15 +55,7 @@ class SummaryCommand extends Command
             throw new InvalidArgumentException('Cannot be in future');
         }
 
-        $cal = $this->calendarService->getCalendar($input->getArgument('calendar'));
-
-        // @TODO refactor into factory and test
-        $events = array_map(
-            function (VEvent $event): Event {
-                return $this->eventFactory->build($event);
-            },
-            $cal->select("VEVENT")
-        );
+        $events = $this->calendarService->getEvents($input->getArgument('calendar'));
 
         $events = array_filter(
             $events,

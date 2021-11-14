@@ -4,6 +4,7 @@ namespace App\Service;
 
 use InvalidArgumentException;
 use Sabre\VObject\Component\VCalendar;
+use Sabre\VObject\Component\VEvent;
 use Sabre\VObject;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -12,16 +13,19 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use App\Factory\EventFactory;
+use App\DataStructure\Event;
+
 class CalendarService {
     protected mixed $config;
 
     public function __construct(
         protected HttpClientInterface $httpClient,
+        protected EventFactory $eventFactory,
+        protected ConfigLoader $configLoader,
         protected string $configPath = '~/.apostolos.yml'
     ) {
-        $configPath = str_replace('~', getenv('HOME'), $configPath);
-
-        $this->config = Yaml::parseFile($configPath);
+        $this->config = $this->configLoader->load($configPath);
     }
 
     public function getCalendarUrl(string $name): string
@@ -30,12 +34,14 @@ class CalendarService {
     }
 
     /**
+     * @return Event[]
+     * 
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function getCalendar(string $name): VObject\Document
+    public function getEvents(string $name): array
     {
         $calendar = VObject\Reader::read(
             $this
@@ -48,6 +54,14 @@ class CalendarService {
             throw new InvalidArgumentException('Calendar seems to be invalid.');
         }
 
-        return $calendar;
+        // @TODO refactor into factory and test
+        $events = array_map(
+            function (VEvent $event): Event {
+                return $this->eventFactory->build($event);
+            },
+            $calendar->select("VEVENT")
+        );
+
+        return $events;
     }
 }
