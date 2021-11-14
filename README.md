@@ -1,5 +1,7 @@
 # Apostolos
 
+[![codecov](https://codecov.io/gh/StephanMeijer/Apostolos/branch/master/graph/badge.svg?token=X4DZUUYX3F)](https://codecov.io/gh/StephanMeijer/Apostolos)
+
 ![](https://www.kerknet.be/sites/default/files/styles/width_640/public/F2184g39_0.jpg)
 
 > Whatever you do, work at it with all your heart.
