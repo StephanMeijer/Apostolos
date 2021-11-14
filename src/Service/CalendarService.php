@@ -19,7 +19,9 @@ class CalendarService {
         protected HttpClientInterface $httpClient,
         protected string $configPath = '~/.apostolos.yml'
     ) {
-        $this->config = Yaml::parseFile('/home/steve/.apostolos.yml');
+        $configPath = str_replace('~', getenv('HOME'), $configPath);
+
+        $this->config = Yaml::parseFile($configPath);
     }
 
     public function getCalendarUrl(string $name): string
