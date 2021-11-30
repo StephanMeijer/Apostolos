@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use InvalidArgumentException;
@@ -35,7 +37,7 @@ class CalendarService {
 
     /**
      * @return Event[]
-     * 
+     *
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
