@@ -26,8 +26,7 @@ class SummaryCommand extends Command
 
     public function __construct(
         protected CalendarService $calendarService
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -52,10 +51,6 @@ class SummaryCommand extends Command
     {
         $month = $this->translateMonth($input->getOption('month'));
         $year = $this->validateYear($input->getOption('year'));
-
-        if ($year === date('Y') && (int) $month > (int) date('m')) {
-            throw new InvalidArgumentException('Cannot be in future');
-        }
 
         $events = $this->calendarService->getEvents(
             $input->getArgument('calendar'),
@@ -98,7 +93,7 @@ class SummaryCommand extends Command
         return Command::SUCCESS;
     }
 
-    protected function formatPeriod(int $minutes): string
+    private function formatPeriod(int $minutes): string
     {
         $hours = intval($minutes / 60);
         $minutesLeft = $minutes % 60;
@@ -106,22 +101,20 @@ class SummaryCommand extends Command
         return "$hours:$minutesLeft";
     }
 
-    protected function validateYear(string $year): string
+    private function validateYear(string $year): string
     {
-        if (is_numeric($year)) {
-            $year = (int) $year;
-        } else {
+        if (!is_numeric($year)) {
             throw new InvalidArgumentException('Year should be valid');
         }
 
-        if ($year > date('Y')) {
+        if ((int) $year > date('Y')) {
             throw new InvalidArgumentException('Year cannot be after this year');
         }
 
         return $year;
     }
 
-    protected function translateMonth(string $month): string
+    private function translateMonth(string $month): string
     {
         if (is_numeric($month)) {
             return $month;
@@ -146,7 +139,7 @@ class SummaryCommand extends Command
         throw new InvalidArgumentException("Invalid month");
     }
 
-    protected function minutesFromInterval(DateInterval $interval): int
+    private function minutesFromInterval(DateInterval $interval): int
     {
         return $interval->d * 24 * 60 + $interval->h * 60 + $interval->i;
     }
