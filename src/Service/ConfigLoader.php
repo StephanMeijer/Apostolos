@@ -15,7 +15,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-use App\Factory\EventFactory;
+use App\Factory\DateTimeFactory;
 use App\DataStructure\Event;
 
 class ConfigLoader {

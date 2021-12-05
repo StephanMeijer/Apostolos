@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Factory\EventFactory;
 use InvalidArgumentException;
 use Sabre\VObject\Component\VCalendar;
 use Sabre\VObject\Component\VEvent;
@@ -15,7 +16,6 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-use App\Factory\EventFactory;
 use App\DataStructure\Event;
 
 class CalendarService {
@@ -23,18 +23,21 @@ class CalendarService {
 
     public function __construct(
         protected HttpClientInterface $httpClient,
-        protected EventFactory $eventFactory,
-        protected ConfigLoader $configLoader,
-        protected string $configPath = '~/.apostolos.yml'
+        protected EventFactory     $eventFactory,
+        protected ConfigLoader        $configLoader,
+        protected string              $configPath = '~/.apostolos.yml'
     ) {
         $this->config = $this->configLoader->load($configPath);
     }
 
-    public function getCalendarUrl(string $name): string
+    public function getCalendar(string $name): ?array // @TODO return calendar object
     {
-        return $this->config['calendars'][$name];
+        foreach ($this->config['calendars'] as $cal) {
+            if ($cal['name'] === $name) {
+                return $cal;
+            }
+        }
     }
-
     /**
      * @return Event[]
      *
@@ -45,10 +48,16 @@ class CalendarService {
      */
     public function getEvents(string $name, string $year, string $month): array
     {
+        $cal = $this->getCalendar($name);
+
+        if (!$cal) {
+            throw new InvalidArgumentException("Calendar $name is not configured.");
+        }
+
         $calendar = VObject\Reader::read(
             $this
                 ->httpClient
-                ->request('GET', $this->getCalendarUrl($name))
+                ->request('GET', $cal['url'])
                 ->getContent()
         );
 

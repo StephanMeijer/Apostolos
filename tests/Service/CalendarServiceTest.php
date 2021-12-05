@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\DataStructure;
 
 use App\DataStructure\Event;
-use App\Service\CalendarService;
 use App\Factory\EventFactory;
+use App\Service\CalendarService;
+use App\Factory\DateTimeFactory;
 
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -16,8 +17,18 @@ class CalendarServiceTest extends KernelTestCase
 {
     public function testDecodingIcal(): void
     {
-        $icalUrl = 'http://example.com/events.ics';
-        $calName = 'Client1';
+        $calendars =[
+            [
+                'rate' => 123,
+                'url' => 'http://example.com/events.ics',
+                'name' => 'Client1'
+            ],
+            [
+                'rate' => 12,
+                'url' => 'http://example2.com/events.ics',
+                'name' => 'Client12'
+            ],
+        ];
 
         $response = $this->createMock(ResponseInterface::class);
         $response
@@ -29,17 +40,17 @@ class CalendarServiceTest extends KernelTestCase
         $config = $this->createMock(\App\Service\ConfigLoader::class);
         $config->expects($this->once())
             ->method('load')
-            ->willReturn([ 'calendars' => [ $calName => $icalUrl ] ]);
+            ->willReturn([ 'calendars' => $calendars ]);
 
         $http = $this->createMock(HttpClientInterface::class);
         $http->expects($this->once())
             ->method('request')
-            ->with('GET', $icalUrl)
+            ->with('GET', 'http://example.com/events.ics')
             ->willReturn($response);
 
-        $calendarService = new CalendarService($http, new EventFactory(), $config, 'some-path');
+        $calendarService = new CalendarService($http, new EventFactory(new DateTimeFactory()), $config, 'some-path');
 
-        $events = $calendarService->getEvents($calName, '2021', '11');
+        $events = $calendarService->getEvents('Client1', '2021', '11');
 
         $this->assertContainsOnlyInstancesOf(Event::class, $events);
         $this->assertCount(3, $events);
