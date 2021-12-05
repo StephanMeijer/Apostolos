@@ -34,6 +34,64 @@ And then run:
 $ bin/console time:summary Client1 --year 2021 --month february
 ```
 
+## Output formats
+
+### Normal / CLI
+
+Default this output is in use. Example:
+
+```
++--- Hours of 2021-12 ---+
+| Day (start) | Duration |
++-------------+----------+
+| 04-12-2021  | 03:53    |
+| 07-12-2021  | 02:30    |
+| 23-12-2021  | 10:00    |
++----- Total: 16:23 -----+
+```
+
+### JSON
+
+Option: `-f json` or `--format json`
+
+Example:
+
+```json
+{
+    "meta": {
+        "year": 2021,
+        "month": 12,
+        "duration": {
+            "hours": 16,
+            "minutes": 23
+        }
+    },
+    "records": [
+        {
+            "day": "2021-12-04",
+            "duration": {
+                "hours": 3,
+                "minutes": 53
+            }
+        },
+        {
+            "day": "2021-12-23",
+            "duration": {
+                "hours": 10,
+                "minutes": 0
+            }
+        },
+        {
+            "day": "2021-12-07",
+            "duration": {
+                "hours": 2,
+                "minutes": 30
+            }
+        }
+    ]
+}
+```
+
 ## What license?
 
 GPLv3.0
