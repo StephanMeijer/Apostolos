@@ -6,10 +6,8 @@ namespace App\Service;
 
 use App\Factory\EventFactory;
 use InvalidArgumentException;
-use Sabre\VObject\Component\VCalendar;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -23,7 +21,7 @@ class CalendarService {
 
     public function __construct(
         protected HttpClientInterface $httpClient,
-        protected EventFactory     $eventFactory,
+        protected EventFactory        $eventFactory,
         protected ConfigLoader        $configLoader,
         protected string              $configPath = '~/.apostolos.yml'
     ) {

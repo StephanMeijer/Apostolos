@@ -1,0 +1,7 @@
+calendars:
+  - name: Test
+    url: "https://calendar.google.com/calendar/ical/example/public/basic.ics"
+    rate: 93
+  - name: Test2
+    url: "https://calendar.google.com/basic.ics"
+    rate: 2
