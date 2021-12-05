@@ -12,7 +12,7 @@ Also remember: **Sigmund Freud** says in _Civilization and Its Discontents_ that
 
 ## Ok what is this bullshit exactly?
 
-Just a tool to use to track time in ical feeds. You can now track time in Google Calendar.
+Just a tool to use to track time in ical feeds. You can now track time in calendar systems such as Google Calendar. **Please note:** as this stage only output from Google Calendar has been tested.
 
 ## And how do I use it?
 

@@ -194,7 +194,7 @@ class SummaryCommand extends Command
 
     private function translateMonth(string $month): string
     {
-        if (is_numeric($month)) {
+        if (is_numeric($month) && (int) $month >= 1 && (int) $month <= 12) {
             return $month;
         }
 

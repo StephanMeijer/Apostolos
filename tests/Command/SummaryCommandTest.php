@@ -9,25 +9,29 @@ use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
 use App\Service\ConfigLoader;
+use Exception;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Component\Console\Command\Command;
 
 class SummaryCommandTest extends KernelTestCase
 {
     /**
      * @dataProvider provider
      */
-    public function testWithExampleDataset($args, $output): void
+    public function testWithExampleDataset(array $args, string $output, ?string $exception = null): void
     {
+        if ($exception) {
+            $this->expectException($exception);
+        }
+
         $realConfigLoader = new ConfigLoader();
 
         $response = $this->createMock(ResponseInterface::class);
-        $response
+        empty($exception) && $response
             ->expects($this->once())
             ->method('getContent')
             ->willReturn(
@@ -35,7 +39,7 @@ class SummaryCommandTest extends KernelTestCase
             );
 
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
+        empty($exception) && $httpClient
             ->expects($this->once())
             ->method('request')
             ->with(
@@ -46,7 +50,7 @@ class SummaryCommandTest extends KernelTestCase
 
         $eventFactory = new EventFactory(new DateTimeFactory());
         $configLoader = $this->createMock(ConfigLoader::class);
-        $configLoader
+        empty($exception) && $configLoader
             ->expects($this->once())
             ->method('load')
             ->with('~/.apostolos.yml')
@@ -61,9 +65,12 @@ class SummaryCommandTest extends KernelTestCase
         );
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute($args);
+        $code = $commandTester->execute($args);
 
-        $this->assertSame($output, $commandTester->getDisplay());
+        if (!$exception) {
+            $this->assertSame(Command::SUCCESS, $code);
+            $this->assertSame($output, $commandTester->getDisplay());
+        }
     }
 
     public function provider(): array
@@ -101,7 +108,52 @@ class SummaryCommandTest extends KernelTestCase
                     '--format' => 'json'
                 ],
                 'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.json'),
-            ]
+            ],
+            'Test 2021 abc (invalid year alphanumeric)' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => '12',
+                    '--year' => 'abc'
+                ],
+                'output' => "",
+                'exception' => InvalidArgumentException::class
+            ],
+            'Test 2021 abc (invalid month alphanumeric)' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => 'abc',
+                    '--year' => '2021'
+                ],
+                'output' => "",
+                'exception' => InvalidArgumentException::class
+            ],
+            'Test 2021 -1 (invalid month numeric)' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => '-1',
+                    '--year' => '2021'
+                ],
+                'output' => "",
+                'exception' => InvalidArgumentException::class
+            ],
+            'Test 2021 0 (invalid month numeric)' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => '0',
+                    '--year' => '2021'
+                ],
+                'output' => "",
+                'exception' => InvalidArgumentException::class
+            ],
+            'Test 2021 14 (invalid month numeric)' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => '14',
+                    '--year' => '2021'
+                ],
+                'output' => "",
+                'exception' => InvalidArgumentException::class
+            ],
         ];
     }
 }
