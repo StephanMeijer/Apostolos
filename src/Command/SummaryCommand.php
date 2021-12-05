@@ -47,7 +47,7 @@ class SummaryCommand extends Command
      * @throws Exception
      * @throws TransportExceptionInterface
      */
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $month = $this->translateMonth($input->getOption('month'));
         $year = $this->validateYear($input->getOption('year'));
@@ -105,10 +105,6 @@ class SummaryCommand extends Command
     {
         if (!is_numeric($year)) {
             throw new InvalidArgumentException('Year should be valid');
-        }
-
-        if ((int) $year > date('Y')) {
-            throw new InvalidArgumentException('Year cannot be after this year');
         }
 
         return $year;
