@@ -98,7 +98,7 @@ class SummaryCommand extends Command
         $hours = intval($minutes / 60);
         $minutesLeft = $minutes % 60;
 
-        return "$hours:$minutesLeft";
+        return sprintf('%02d', $hours) . ':' . sprintf('%02d', $minutesLeft);
     }
 
     private function validateYear(string $year): string
