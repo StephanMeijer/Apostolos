@@ -132,7 +132,7 @@ class SummaryCommand extends Command
                 str_contains($possbileMonth, $month) ||
                 $possbileMonth === $month
             ) {
-                return (string) $i + 1;
+                return (string) ($i + 1);
             }
         }
 

@@ -19,7 +19,10 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class SummaryCommandTest extends KernelTestCase
 {
-    public function testWithExampleDataset(): void
+    /**
+     * @dataProvider provider
+     */
+    public function testWithExampleDataset($args, $output): void
     {
         $realConfigLoader = new ConfigLoader();
 
@@ -58,15 +61,38 @@ class SummaryCommandTest extends KernelTestCase
         );
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute([
-            'calendar' => 'Test',
-            '--month' => '12',
-            '--year' => '2021'
-        ]);
+        $commandTester->execute($args);
 
-        $this->assertSame(
-            file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
-            $commandTester->getDisplay()
-        );
+        $this->assertSame($output, $commandTester->getDisplay());
+    }
+
+    public function provider(): array
+    {
+        return [
+            'Test 2021 12' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => '12',
+                    '--year' => '2021'
+                ],
+                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+            ],
+            'Test 2021 december' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => 'december',
+                    '--year' => '2021'
+                ],
+                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+            ],
+            'Test 2021 dec' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => 'dec',
+                    '--year' => '2021'
+                ],
+                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+            ]
+        ];
     }
 }
