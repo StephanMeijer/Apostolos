@@ -154,6 +154,15 @@ class SummaryCommandTest extends KernelTestCase
                 'output' => "",
                 'exception' => InvalidArgumentException::class
             ],
+            'NonExistent 2021 12 (invalid calendar)' => [
+                'args' => [
+                    'calendar' => 'NonExistent',
+                    '--month' => '12',
+                    '--year' => '2021'
+                ],
+                'output' => "",
+                'exception' => InvalidArgumentException::class
+            ],
         ];
     }
 }

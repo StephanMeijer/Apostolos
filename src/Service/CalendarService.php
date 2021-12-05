@@ -30,12 +30,15 @@ class CalendarService {
 
     public function getCalendar(string $name): ?array // @TODO return calendar object
     {
-        foreach ($this->config['calendars'] as $cal) {
+        foreach ($this->config['calendars'] ?? [] as $cal) {
             if ($cal['name'] === $name) {
                 return $cal;
             }
         }
+
+        return null;
     }
+
     /**
      * @return Event[]
      *
