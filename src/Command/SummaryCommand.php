@@ -11,7 +11,7 @@ use App\DataStructure\Event;
 use App\Service\CalendarService;
 
 use InvalidArgumentException;
-use Sabre\VObject\Component\VEvent;
+use JsonException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -59,12 +59,88 @@ class SummaryCommand extends Command
             $month
         );
 
-        $this->normalFormat($events, $month, $year, $output);
+        $format = $input->getOption('format');
+
+        match ($format) {
+            'json' => $this->outputJSON($events, $month, $year, $output),
+            default => $this->outputNormal($events, $month, $year, $output)
+        };
 
         return Command::SUCCESS;
     }
 
-    private function normalFormat(array $events, string $month, string $year, OutputInterface $output): void
+    /**
+     * @throws JsonException
+     */
+    private function outputJSON(array $events, string $month, string $year, OutputInterface $output): void
+    {
+        $outputData = array_reduce(
+            $events,
+            function($acc, Event $event): array {
+                $dayKey = $event->start->format('Y-m-d');
+                $minutes = $this->minutesFromInterval(
+                    $event->start->diff($event->end)
+                );
+
+                $duration = [
+                    'hours' => 0,
+                    'minutes' => $minutes,
+                ];
+
+                $found = false;
+
+                foreach ($acc['records'] as &$day) {
+                    if ($day['day'] === $dayKey) {
+                        $day['duration']['minutes'] += $minutes;
+                        $found = true;
+                    }
+                }
+
+                if (!$found) {
+                    $acc['records'][] = [
+                        "day" => $dayKey,
+                        "duration" => $duration
+                    ];
+                }
+
+                $acc['meta']['duration']['minutes'] += $minutes;
+
+                return $acc;
+            },
+            [
+                "meta" => [
+                    "year" => (int) $year,
+                    "month" => (int) $month,
+                    "duration" => [
+                        "hours" => 0,
+                        "minutes" => 0
+                    ]
+                ],
+                "records" => []
+            ]
+        );
+
+        foreach ($outputData['records'] as &$day) {
+            $minutes = $day['duration']['minutes'];
+
+            $day['duration']['hours'] = (int) floor($minutes / 60);
+            $day['duration']['minutes'] = (int) $minutes % 60;
+        }
+
+        $minutes = $outputData['meta']['duration']['minutes'];
+
+        $outputData['meta']['duration']['hours'] = (int) floor($minutes / 60);
+        $outputData['meta']['duration']['minutes'] = (int) $minutes % 60;
+
+        $output->write(
+            json_encode(
+                $outputData,
+                JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR
+            )
+        );
+    }
+
+    private function outputNormal(array $events, string $month, string $year, OutputInterface $output): void
     {
         $days = [];
 

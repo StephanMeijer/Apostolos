@@ -92,6 +92,15 @@ class SummaryCommandTest extends KernelTestCase
                     '--year' => '2021'
                 ],
                 'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+            ],
+            'Test 2021 dec json' => [
+                'args' => [
+                    'calendar' => 'Test',
+                    '--month' => 'dec',
+                    '--year' => '2021',
+                    '--format' => 'json'
+                ],
+                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.json'),
             ]
         ];
     }
