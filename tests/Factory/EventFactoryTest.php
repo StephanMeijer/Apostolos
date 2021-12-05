@@ -6,7 +6,6 @@ namespace App\Tests\DataStructure;
 
 use App\Factory\EventFactory;
 use DateTime;
-use DateTimeImmutable;
 
 use App\Factory\DateTimeFactory;
 
