@@ -36,7 +36,8 @@ class SummaryCommand extends Command
             ->setHelp('Summarize hours.')
             ->addArgument("calendar", InputArgument::REQUIRED)
             ->addOption('month', 'm', InputOption::VALUE_OPTIONAL, 'Month', date('m'))
-            ->addOption('year', 'y', InputOption::VALUE_OPTIONAL, 'Year', date('Y'));
+            ->addOption('year', 'y', InputOption::VALUE_OPTIONAL, 'Year', date('Y'))
+            ->addOption('format', 'f', InputOption::VALUE_OPTIONAL, 'Year', 'text');
     }
 
     /**
@@ -58,6 +59,13 @@ class SummaryCommand extends Command
             $month
         );
 
+        $this->normalFormat($events, $month, $year, $output);
+
+        return Command::SUCCESS;
+    }
+
+    private function normalFormat(array $events, string $month, string $year, OutputInterface $output): void
+    {
         $days = [];
 
         foreach ($events as $event) {
@@ -89,8 +97,6 @@ class SummaryCommand extends Command
         $table->setHeaderTitle("Hours of $year-$month");
         $table->setFooterTitle("Total: " . $this->formatPeriod(array_sum(array_values($days))));
         $table->render();
-
-        return Command::SUCCESS;
     }
 
     private function formatPeriod(int $minutes): string
