@@ -132,6 +132,8 @@ class SummaryCommand extends Command
         $outputData['meta']['duration']['hours'] = (int) floor($minutes / 60);
         $outputData['meta']['duration']['minutes'] = (int) $minutes % 60;
 
+        sort($outputData['records']);
+
         $output->write(
             json_encode(
                 $outputData,

@@ -16,17 +16,17 @@
             }
         },
         {
-            "day": "2021-12-23",
-            "duration": {
-                "hours": 10,
-                "minutes": 0
-            }
-        },
-        {
             "day": "2021-12-07",
             "duration": {
                 "hours": 2,
                 "minutes": 30
+            }
+        },
+        {
+            "day": "2021-12-23",
+            "duration": {
+                "hours": 10,
+                "minutes": 0
             }
         }
     ]
