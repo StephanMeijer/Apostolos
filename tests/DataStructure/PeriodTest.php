@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\DataStructure;
 
 use App\DataStructure\Date;
+use App\DataStructure\Duration;
 use App\DataStructure\Period;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -13,9 +14,11 @@ class PeriodTest extends KernelTestCase
     public function testConstructor(): void
     {
         $date = $this->createMock(Date::class);
-        $period = new Period($date, 123123);
+        $duration = $this->createMock(Duration::class);
+
+        $period = new Period($date, $duration);
 
         $this->assertSame($date, $period->date);
-        $this->assertSame(123123, $period->minutes);
+        $this->assertSame($duration, $period->duration);
     }
 }

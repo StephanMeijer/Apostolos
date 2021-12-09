@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\DataStructure\Date;
+use App\DataStructure\Duration;
 use App\DataStructure\Period;
 use DateInterval;
 use DateTime;
@@ -78,7 +79,7 @@ class SummaryCommand extends Command
 
                 foreach ($acc as &$period) {
                     if ($dateEquals($period->date->toDateTime(), $event->start)) {
-                        $period->minutes = $period->minutes + $event->minutes();
+                        $period->duration->addMinutes($event->minutes());
                         $found = true;
                     }
                 }
@@ -86,7 +87,7 @@ class SummaryCommand extends Command
                 if (!$found) {
                     $acc[] = new Period(
                         Date::fromDateTime($event->start),
-                        $event->minutes()
+                        new Duration($event->minutes())
                     );
                 }
 
@@ -118,17 +119,14 @@ class SummaryCommand extends Command
             function($acc, Period $period): array {
                 $dayKey = $period->date->toDateTime()->format('Y-m-d');
 
-                $duration = [
-                    'hours' => 0,
-                    'minutes' => $period->minutes,
-                ];
-
                 $acc['records'][] = [
                     "day" => $dayKey,
-                    "duration" => $duration
+                    "duration" => $period->duration->toArray()
                 ];
 
-                $acc['meta']['duration']['minutes'] += $period->minutes;
+                $metaDuration = Duration::fromArray($acc['meta']['duration']);
+                $metaDuration->addDuration($period->duration);
+                $acc['meta']['duration'] = $metaDuration->toArray();
 
                 return $acc;
             },
@@ -144,18 +142,6 @@ class SummaryCommand extends Command
                 "records" => []
             ]
         );
-
-        foreach ($outputData['records'] as &$day) {
-            $minutes = $day['duration']['minutes'];
-
-            $day['duration']['hours'] = (int) floor($minutes / 60);
-            $day['duration']['minutes'] = (int) $minutes % 60;
-        }
-
-        $minutes = $outputData['meta']['duration']['minutes'];
-
-        $outputData['meta']['duration']['hours'] = (int) floor($minutes / 60);
-        $outputData['meta']['duration']['minutes'] = (int) $minutes % 60;
 
         sort($outputData['records']);
 
@@ -178,16 +164,17 @@ class SummaryCommand extends Command
         foreach ($periods as $period) {
             $rows[] = [
                 $period->date->toDateTime()->format('d-m-Y'),
-                $this->formatPeriod($period->minutes)
+                $period->duration->toText()
             ];
         }
 
-        $totalMinutes = array_reduce(
+        $totalDuration = array_reduce(
             $periods,
-            function (int $acc, Period $period): int {
-                return $acc + $period->minutes;
+            function (Duration $acc, Period $period): Duration {
+                $acc->addDuration($period->duration);
+                return $acc;
             },
-            0
+            new Duration(0)
         );
 
         sort($rows);
@@ -197,16 +184,8 @@ class SummaryCommand extends Command
             ->setHeaders(['Day (start)', 'Duration'])
             ->setRows($rows);
         $table->setHeaderTitle("Hours of $year-$month");
-        $table->setFooterTitle("Total: " . $this->formatPeriod($totalMinutes));
+        $table->setFooterTitle("Total: " . $totalDuration->toText());
         $table->render();
-    }
-
-    private function formatPeriod(int $minutes): string
-    {
-        $hours = intval($minutes / 60);
-        $minutesLeft = $minutes % 60;
-
-        return sprintf('%02d', $hours) . ':' . sprintf('%02d', $minutesLeft);
     }
 
     private function validateYear(string $year): string

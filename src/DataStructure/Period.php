@@ -7,6 +7,6 @@ namespace App\DataStructure;
 class Period {
     public function __construct(
         public Date $date,
-        public int $minutes
+        public Duration $duration
     ) { }
 }
