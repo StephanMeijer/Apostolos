@@ -9,7 +9,6 @@ use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
 use App\Service\ConfigLoader;
-use Exception;
 use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
