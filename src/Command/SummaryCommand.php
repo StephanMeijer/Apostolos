@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\DataStructure\Date;
+use App\DataStructure\Period;
 use DateInterval;
+use DateTime;
 use Exception;
 
 use App\DataStructure\Event;
@@ -59,51 +62,73 @@ class SummaryCommand extends Command
             $month
         );
 
-        $format = $input->getOption('format');
+        $periods = array_reduce(
+            $events,
+            /**
+             * @param Period[] $acc
+             * @return Period[]
+             */
+            function(array $acc, Event $event): array
+            {
+                $dateEquals = function (DateTime $a, DateTime $b): bool {
+                    return $a->format('Y-m-d') === $b->format('Y-m-d');
+                };
 
-        match ($format) {
-            'json' => $this->outputJSON($events, $month, $year, $output),
-            default => $this->outputNormal($events, $month, $year, $output)
+                $found = false;
+
+                foreach ($acc as &$period) {
+                    if ($dateEquals($period->date->toDateTime(), $event->start)) {
+                        $period->minutes = $period->minutes + $event->minutes();
+                        $found = true;
+                    }
+                }
+
+                if (!$found) {
+                    $acc[] = new Period(
+                        Date::fromDateTime($event->start),
+                        $event->minutes()
+                    );
+                }
+
+                return $acc;
+            },
+            []
+        );
+
+        match (
+            $input->getOption('format')
+        ) {
+            'json' => $this->outputJSON($periods, $month, $year, $output),
+            default => $this->outputNormal($periods, $month, $year, $output)
         };
 
         return Command::SUCCESS;
     }
 
     /**
+     * @param Period[] $periods
+     * @throws Exception
+     *
      * @throws JsonException
      */
-    private function outputJSON(array $events, string $month, string $year, OutputInterface $output): void
+    private function outputJSON(array $periods, string $month, string $year, OutputInterface $output): void
     {
         $outputData = array_reduce(
-            $events,
-            function($acc, Event $event): array {
-                $dayKey = $event->start->format('Y-m-d');
-                $minutes = $this->minutesFromInterval(
-                    $event->start->diff($event->end)
-                );
+            $periods,
+            function($acc, Period $period): array {
+                $dayKey = $period->date->toDateTime()->format('Y-m-d');
 
                 $duration = [
                     'hours' => 0,
-                    'minutes' => $minutes,
+                    'minutes' => $period->minutes,
                 ];
 
-                $found = false;
+                $acc['records'][] = [
+                    "day" => $dayKey,
+                    "duration" => $duration
+                ];
 
-                foreach ($acc['records'] as &$day) {
-                    if ($day['day'] === $dayKey) {
-                        $day['duration']['minutes'] += $minutes;
-                        $found = true;
-                    }
-                }
-
-                if (!$found) {
-                    $acc['records'][] = [
-                        "day" => $dayKey,
-                        "duration" => $duration
-                    ];
-                }
-
-                $acc['meta']['duration']['minutes'] += $minutes;
+                $acc['meta']['duration']['minutes'] += $period->minutes;
 
                 return $acc;
             },
@@ -142,29 +167,28 @@ class SummaryCommand extends Command
         );
     }
 
-    private function outputNormal(array $events, string $month, string $year, OutputInterface $output): void
+    /**
+     * @param Period[] $periods
+     * @throws Exception
+     */
+    private function outputNormal(array $periods, string $month, string $year, OutputInterface $output): void
     {
-        $days = [];
-
-        foreach ($events as $event) {
-            $interval = $event->start->diff($event->end);
-
-            $minutes = $this->minutesFromInterval($interval);
-
-            $dayKey = $event->start->format('d');
-
-            if (isset($days[$dayKey])) {
-                $days[$dayKey] = $days[$dayKey] + $minutes;
-            } else {
-                $days[$dayKey] = $minutes;
-            }
-        }
-
         $rows = [];
 
-        foreach ($days as $d => $minutes) {
-            $rows[] = ["$d-$month-$year", $this->formatPeriod($minutes)];
+        foreach ($periods as $period) {
+            $rows[] = [
+                $period->date->toDateTime()->format('d-m-Y'),
+                $this->formatPeriod($period->minutes)
+            ];
         }
+
+        $totalMinutes = array_reduce(
+            $periods,
+            function (int $acc, Period $period): int {
+                return $acc + $period->minutes;
+            },
+            0
+        );
 
         sort($rows);
 
@@ -173,7 +197,7 @@ class SummaryCommand extends Command
             ->setHeaders(['Day (start)', 'Duration'])
             ->setRows($rows);
         $table->setHeaderTitle("Hours of $year-$month");
-        $table->setFooterTitle("Total: " . $this->formatPeriod(array_sum(array_values($days))));
+        $table->setFooterTitle("Total: " . $this->formatPeriod($totalMinutes));
         $table->render();
     }
 

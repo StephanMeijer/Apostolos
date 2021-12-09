@@ -21,8 +21,12 @@ class SummaryCommandTest extends KernelTestCase
     /**
      * @dataProvider provider
      */
-    public function testWithExampleDataset(array $args, string $inputICS,string $output, ?string $exception = null): void
-    {
+    public function testWithExampleDataset(
+        array $args,
+        string $inputICS,
+        string $output,
+        ?string $exception = null
+    ): void {
         if ($exception) {
             $this->expectException($exception);
         }
@@ -66,7 +70,7 @@ class SummaryCommandTest extends KernelTestCase
 
         if (!$exception) {
             $this->assertSame(Command::SUCCESS, $code);
-            $this->assertSame($output, $commandTester->getDisplay());
+            $this->assertSame(trim($output), trim($commandTester->getDisplay()));
         }
     }
 

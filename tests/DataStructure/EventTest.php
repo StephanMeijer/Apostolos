@@ -24,6 +24,17 @@ class EventTest extends KernelTestCase
         $this->assertEquals($description, $event->description);
     }
 
+    public function testMinutes(): void
+    {
+        $event = new Event(
+            new DateTime('2021-12-13T18:00'),
+            new DateTime('2021-12-14T01:03:44'),
+            ''
+        );
+
+        $this->assertEquals(7 * 60 + 3, $event->minutes());
+    }
+
     public function testSetters(): void
     {
         $start = $this->createMock(DateTime::class);
