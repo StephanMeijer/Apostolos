@@ -68,6 +68,8 @@ class SummaryCommand extends Command
             /**
              * @param Period[] $acc
              * @return Period[]
+             *
+             * @throws Exception
              */
             function(array $acc, Event $event): array
             {
@@ -210,20 +212,15 @@ class SummaryCommand extends Command
             'october', 'november', 'december'
         ];
 
-        foreach ($months as $i => $possbileMonth) {
+        foreach ($months as $i => $possibleMonth) {
             if (
-                str_contains($possbileMonth, $month) ||
-                $possbileMonth === $month
+                str_contains($possibleMonth, $month) ||
+                $possibleMonth === $month
             ) {
                 return (string) ($i + 1);
             }
         }
 
         throw new InvalidArgumentException("Invalid month");
-    }
-
-    private function minutesFromInterval(DateInterval $interval): int
-    {
-        return $interval->d * 24 * 60 + $interval->h * 60 + $interval->i;
     }
 }

@@ -42,7 +42,6 @@ class Duration {
         return sprintf('%02d', $this->getHours()) . ':' . sprintf('%02d', $this->getMinutes());
     }
 
-
     /**
      * @return array<string, int>
      */
