@@ -59,6 +59,7 @@ Example:
 ```json
 {
     "meta": {
+        "calendar": "Client1",
         "year": 2021,
         "month": 12,
         "duration": {

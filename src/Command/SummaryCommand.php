@@ -102,7 +102,8 @@ class SummaryCommand extends Command
 
         $totalDuration = array_reduce(
             $periods,
-            function (Duration $acc, Period $period): Duration{
+            function (Duration $acc, Period $period): Duration
+            {
                 $acc->addDuration($period->duration);
                 return $acc;
             },
@@ -112,8 +113,8 @@ class SummaryCommand extends Command
         match (
             $input->getOption('format')
         ) {
-            'json' => $this->outputJSON($periods, $totalDuration, $month, $year, $output),
-            default => $this->outputNormal($periods, $totalDuration, $month, $year, $output)
+            'json' => $this->outputJSON($periods, $totalDuration, $month, $year, $input, $output),
+            default => $this->outputNormal($periods, $totalDuration, $month, $year, $input, $output)
         };
 
         return Command::SUCCESS;
@@ -125,12 +126,19 @@ class SummaryCommand extends Command
      *
      * @throws JsonException
      */
-    private function outputJSON(array $periods, Duration $totalDuration, string $month, string $year, OutputInterface $output): void
-    {
+    private function outputJSON(
+        array $periods,
+        Duration $totalDuration,
+        string $month,
+        string $year,
+        InputInterface $input,
+        OutputInterface $output
+    ): void {
         $output->write(
             json_encode(
                 [
                     'meta' => [
+                        "calendar" => $input->getArgument("calendar"),
                         "year" => (int) $year,
                         "month" => (int) $month,
                         "duration" => $totalDuration
@@ -151,6 +159,7 @@ class SummaryCommand extends Command
         Duration $totalDuration,
         string $month,
         string $year,
+        InputInterface $input,
         OutputInterface $output
     ): void {
         $table = new Table($output);
