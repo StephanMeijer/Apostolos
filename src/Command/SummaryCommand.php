@@ -98,6 +98,8 @@ class SummaryCommand extends Command
             []
         );
 
+        sort($periods);
+
         match (
             $input->getOption('format')
         ) {
@@ -116,40 +118,23 @@ class SummaryCommand extends Command
      */
     private function outputJSON(array $periods, string $month, string $year, OutputInterface $output): void
     {
-        $outputData = array_reduce(
-            $periods,
-            function($acc, Period $period): array {
-                $dayKey = $period->date->toDateTime()->format('Y-m-d');
-
-                $acc['records'][] = [
-                    "day" => $dayKey,
-                    "duration" => $period->duration->toArray()
-                ];
-
-                $metaDuration = Duration::fromArray($acc['meta']['duration']);
-                $metaDuration->addDuration($period->duration);
-                $acc['meta']['duration'] = $metaDuration->toArray();
-
-                return $acc;
-            },
-            [
-                "meta" => [
-                    "year" => (int) $year,
-                    "month" => (int) $month,
-                    "duration" => [
-                        "hours" => 0,
-                        "minutes" => 0
-                    ]
-                ],
-                "records" => []
-            ]
-        );
-
-        sort($outputData['records']);
-
         $output->write(
             json_encode(
-                $outputData,
+                [
+                    'meta' => [
+                        "year" => (int) $year,
+                        "month" => (int) $month,
+                        "duration" => array_reduce(
+                            $periods,
+                            function (Duration $acc, Period $period): Duration{
+                                $acc->addDuration($period->duration);
+                                return $acc;
+                            },
+                            new Duration(0)
+                        )
+                    ],
+                    'records' => $periods
+                ],
                 JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR
             )
         );

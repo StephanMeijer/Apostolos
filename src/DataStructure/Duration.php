@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\DataStructure;
 
-class Duration {
+use JsonSerializable;
+
+class Duration implements JsonSerializable {
     public function __construct(private int $minutes) {}
 
     /**
@@ -51,5 +53,13 @@ class Duration {
             'hours' => $this->getHours(),
             'minutes' => $this->getMinutes()
         ];
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }
