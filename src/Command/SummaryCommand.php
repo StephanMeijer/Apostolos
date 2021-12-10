@@ -146,23 +146,27 @@ class SummaryCommand extends Command
      * @param Period[] $periods
      * @throws Exception
      */
-    private function outputNormal(array $periods, Duration $totalDuration, string $month, string $year, OutputInterface $output): void
-    {
-        $rows = [];
-
-        foreach ($periods as $period) {
-            $rows[] = [
-                $period->date->toDateTime()->format('d-m-Y'),
-                $period->duration->toText()
-            ];
-        }
-
-        sort($rows);
-
+    private function outputNormal(
+        array $periods,
+        Duration $totalDuration,
+        string $month,
+        string $year,
+        OutputInterface $output
+    ): void {
         $table = new Table($output);
         $table
             ->setHeaders(['Day (start)', 'Duration'])
-            ->setRows($rows);
+            ->setRows(
+                array_map(
+                    function(Period $period): array {
+                        return [
+                            $period->date->toDateTime()->format('d-m-Y'),
+                            $period->duration->toText()
+                        ];
+                    },
+                    $periods
+                )
+            );
         $table->setHeaderTitle("Hours of $year-$month");
         $table->setFooterTitle("Total: " . $totalDuration->toText());
         $table->render();
