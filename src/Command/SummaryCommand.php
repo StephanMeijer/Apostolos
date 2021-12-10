@@ -100,11 +100,20 @@ class SummaryCommand extends Command
 
         sort($periods);
 
+        $totalDuration = array_reduce(
+            $periods,
+            function (Duration $acc, Period $period): Duration{
+                $acc->addDuration($period->duration);
+                return $acc;
+            },
+            new Duration(0)
+        );
+
         match (
             $input->getOption('format')
         ) {
-            'json' => $this->outputJSON($periods, $month, $year, $output),
-            default => $this->outputNormal($periods, $month, $year, $output)
+            'json' => $this->outputJSON($periods, $totalDuration, $month, $year, $output),
+            default => $this->outputNormal($periods, $totalDuration, $month, $year, $output)
         };
 
         return Command::SUCCESS;
@@ -116,7 +125,7 @@ class SummaryCommand extends Command
      *
      * @throws JsonException
      */
-    private function outputJSON(array $periods, string $month, string $year, OutputInterface $output): void
+    private function outputJSON(array $periods, Duration $totalDuration, string $month, string $year, OutputInterface $output): void
     {
         $output->write(
             json_encode(
@@ -124,14 +133,7 @@ class SummaryCommand extends Command
                     'meta' => [
                         "year" => (int) $year,
                         "month" => (int) $month,
-                        "duration" => array_reduce(
-                            $periods,
-                            function (Duration $acc, Period $period): Duration{
-                                $acc->addDuration($period->duration);
-                                return $acc;
-                            },
-                            new Duration(0)
-                        )
+                        "duration" => $totalDuration
                     ],
                     'records' => $periods
                 ],
@@ -144,7 +146,7 @@ class SummaryCommand extends Command
      * @param Period[] $periods
      * @throws Exception
      */
-    private function outputNormal(array $periods, string $month, string $year, OutputInterface $output): void
+    private function outputNormal(array $periods, Duration $totalDuration, string $month, string $year, OutputInterface $output): void
     {
         $rows = [];
 
@@ -154,15 +156,6 @@ class SummaryCommand extends Command
                 $period->duration->toText()
             ];
         }
-
-        $totalDuration = array_reduce(
-            $periods,
-            function (Duration $acc, Period $period): Duration {
-                $acc->addDuration($period->duration);
-                return $acc;
-            },
-            new Duration(0)
-        );
 
         sort($rows);
 
