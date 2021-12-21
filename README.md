@@ -14,6 +14,8 @@ Also remember: **Sigmund Freud** says in _Civilization and Its Discontents_ that
 
 Just a tool to use to track time in ical feeds. You can now track time in calendar systems such as Google Calendar. **Please note:** as this stage only output from Google Calendar has been tested.
 
+[Read more here.](https://stephanmeijer.com/Apostolos/)
+
 ## And how do I use it?
 
 Example config: `~/.apostolos.yml`:
