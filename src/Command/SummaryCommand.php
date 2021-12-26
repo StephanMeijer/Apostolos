@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\DataStructure\CalendarRepresentation;
 use App\DataStructure\Date;
 use App\DataStructure\Duration;
+use App\DataStructure\Event;
 use App\DataStructure\Period;
-use DateInterval;
+use App\Service\CalendarService;
+use App\Service\Transformer\CliTransformer;
+use App\Service\Transformer\JsonTransformer;
 use DateTime;
 use Exception;
-
-use App\DataStructure\Event;
-use App\Service\CalendarService;
-
 use InvalidArgumentException;
-use JsonException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +27,9 @@ class SummaryCommand extends Command
     protected static $defaultName = 'time:summary';
 
     public function __construct(
-        protected CalendarService $calendarService
+        protected CalendarService $calendarService,
+        protected JsonTransformer $jsonTransformer,
+        protected CliTransformer $cliTransformer
     ) {
         parent::__construct();
     }
@@ -71,15 +71,15 @@ class SummaryCommand extends Command
              *
              * @throws Exception
              */
-            function(array $acc, Event $event): array
+            static function (array $acc, Event $event): array
             {
-                $dateEquals = function (DateTime $a, DateTime $b): bool {
+                $dateEquals = static function (DateTime $a, DateTime $b): bool {
                     return $a->format('Y-m-d') === $b->format('Y-m-d');
                 };
 
                 $found = false;
 
-                foreach ($acc as &$period) {
+                foreach ($acc as $period) {
                     if ($dateEquals($period->date->toDateTime(), $event->start)) {
                         $period->duration->addMinutes($event->minutes());
                         $found = true;
@@ -100,85 +100,19 @@ class SummaryCommand extends Command
 
         sort($periods);
 
-        $totalDuration = array_reduce(
-            $periods,
-            function (Duration $acc, Period $period): Duration
-            {
-                $acc->addDuration($period->duration);
-                return $acc;
-            },
-            new Duration(0)
+        $calendarRepresentation = new CalendarRepresentation(
+            name: $input->getArgument('calendar'),
+            month: $month,
+            year: $year,
+            periods: $periods
         );
 
-        match (
-            $input->getOption('format')
-        ) {
-            'json' => $this->outputJSON($periods, $totalDuration, $month, $year, $input, $output),
-            default => $this->outputNormal($periods, $totalDuration, $month, $year, $input, $output)
+        match ($input->getOption('format')) {
+            'json' => $this->jsonTransformer->transform($calendarRepresentation, $output),
+            default => $this->cliTransformer->transform($calendarRepresentation, $output)
         };
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * @param Period[] $periods
-     * @throws Exception
-     *
-     * @throws JsonException
-     */
-    private function outputJSON(
-        array $periods,
-        Duration $totalDuration,
-        string $month,
-        string $year,
-        InputInterface $input,
-        OutputInterface $output
-    ): void {
-        $output->write(
-            json_encode(
-                [
-                    'meta' => [
-                        "calendar" => $input->getArgument("calendar"),
-                        "year" => (int) $year,
-                        "month" => (int) $month,
-                        "duration" => $totalDuration
-                    ],
-                    'records' => $periods
-                ],
-                JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR
-            )
-        );
-    }
-
-    /**
-     * @param Period[] $periods
-     * @throws Exception
-     */
-    private function outputNormal(
-        array $periods,
-        Duration $totalDuration,
-        string $month,
-        string $year,
-        InputInterface $input,
-        OutputInterface $output
-    ): void {
-        $table = new Table($output);
-        $table
-            ->setHeaders(['Day (start)', 'Duration'])
-            ->setRows(
-                array_map(
-                    function(Period $period): array {
-                        return [
-                            $period->date->toDateTime()->format('d-m-Y'),
-                            $period->duration->toText()
-                        ];
-                    },
-                    $periods
-                )
-            );
-        $table->setHeaderTitle("Hours of $year-$month");
-        $table->setFooterTitle("Total: " . $totalDuration->toText());
-        $table->render();
     }
 
     private function validateYear(string $year): string
@@ -199,15 +133,12 @@ class SummaryCommand extends Command
         $months = [
             'january', 'february', 'march',
             'april', 'may', 'june',
-            'juli', 'august', 'september',
+            'july', 'august', 'september',
             'october', 'november', 'december'
         ];
 
         foreach ($months as $i => $possibleMonth) {
-            if (
-                str_contains($possibleMonth, $month) ||
-                $possibleMonth === $month
-            ) {
+            if ($possibleMonth === $month || str_contains($possibleMonth, $month)) {
                 return (string) ($i + 1);
             }
         }

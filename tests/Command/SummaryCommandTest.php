@@ -9,6 +9,8 @@ use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
 use App\Service\ConfigLoader;
+use App\Service\Transformer\CliTransformer;
+use App\Service\Transformer\JsonTransformer;
 use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -62,7 +64,9 @@ class SummaryCommandTest extends KernelTestCase
         $command = new SummaryCommand(
             new CalendarService(
                 $httpClient, $eventFactory, $configLoader
-            )
+            ),
+            new JsonTransformer(),
+            new CliTransformer()
         );
 
         $commandTester = new CommandTester($command);
