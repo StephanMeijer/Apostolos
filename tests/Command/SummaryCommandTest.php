@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\DataStructure;
 
 use App\Command\SummaryCommand;
+use App\DataStructure\Exception\InvalidCalendarException;
 use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
@@ -17,6 +18,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
+
+use Sabre\VObject;
 
 class SummaryCommandTest extends KernelTestCase
 {
@@ -36,13 +39,13 @@ class SummaryCommandTest extends KernelTestCase
         $realConfigLoader = new ConfigLoader();
 
         $response = $this->createMock(ResponseInterface::class);
-        empty($exception) && $response
+        $exception !== InvalidArgumentException::class && $response
             ->expects($this->once())
             ->method('getContent')
             ->willReturn($inputICS);
 
         $httpClient = $this->createMock(HttpClientInterface::class);
-        empty($exception) && $httpClient
+        $exception !== InvalidArgumentException::class && $httpClient
             ->expects($this->once())
             ->method('request')
             ->with(
@@ -53,7 +56,7 @@ class SummaryCommandTest extends KernelTestCase
 
         $eventFactory = new EventFactory(new DateTimeFactory());
         $configLoader = $this->createMock(ConfigLoader::class);
-        empty($exception) && $configLoader
+        $exception !== InvalidArgumentException::class && $configLoader
             ->expects($this->once())
             ->method('load')
             ->with('~/.apostolos.yml')
@@ -76,6 +79,15 @@ class SummaryCommandTest extends KernelTestCase
             $this->assertSame(Command::SUCCESS, $code);
             $this->assertSame(trim($output), trim($commandTester->getDisplay()));
         }
+    }
+
+    public function testInvalidTestData(): void
+    {
+        $calendar = VObject\Reader::read(
+            file_get_contents(__DIR__ . '/Fixtures/invalid.ics')
+        );
+
+        $this->assertNotEmpty($calendar->validate());
     }
 
     public function provider(): array
@@ -186,7 +198,7 @@ class SummaryCommandTest extends KernelTestCase
                 ],
                 'inputICS' => file_get_contents(__DIR__ . '/Fixtures/invalid.ics'),
                 'output' => "",
-                'exception' => InvalidArgumentException::class
+                'exception' => InvalidCalendarException::class
             ],
         ];
     }

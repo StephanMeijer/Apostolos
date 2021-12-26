@@ -9,27 +9,30 @@ use App\Factory\EventFactory;
 use App\Service\CalendarService;
 use App\Factory\DateTimeFactory;
 
+use App\Service\ConfigLoader;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CalendarServiceTest extends KernelTestCase
 {
+    public function testListCalendars(): void
+    {
+        $config = $this->configMock();
+
+        $http = $this->createMock(HttpClientInterface::class);
+        $eventFactory = $this->createMock(EventFactory::class);
+
+        $calendarService = new CalendarService($http, $eventFactory, $config, 'some-path');
+
+        $this->assertEquals(
+            ['Client1', 'Client12'],
+            $calendarService->listCalendars()
+        );
+    }
+
     public function testDecodingIcal(): void
     {
-        $calendars =[
-            [
-                'rate' => 123,
-                'url' => 'http://example.com/events.ics',
-                'name' => 'Client1'
-            ],
-            [
-                'rate' => 12,
-                'url' => 'http://example2.com/events.ics',
-                'name' => 'Client12'
-            ],
-        ];
-
         $response = $this->createMock(ResponseInterface::class);
         $response
             ->method('getContent')
@@ -37,10 +40,7 @@ class CalendarServiceTest extends KernelTestCase
                 file_get_contents(__DIR__ . '/Fixtures/events.ics')
             );
 
-        $config = $this->createMock(\App\Service\ConfigLoader::class);
-        $config->expects($this->once())
-            ->method('load')
-            ->willReturn([ 'calendars' => $calendars ]);
+        $config = $this->configMock();
 
         $http = $this->createMock(HttpClientInterface::class);
         $http->expects($this->once())
@@ -75,5 +75,28 @@ class CalendarServiceTest extends KernelTestCase
             ],
             $events
         );
+    }
+
+    private function configMock(): ConfigLoader
+    {
+        $calendars = [
+            [
+                'rate' => 123,
+                'url' => 'http://example.com/events.ics',
+                'name' => 'Client1'
+            ],
+            [
+                'rate' => 12,
+                'url' => 'http://example2.com/events.ics',
+                'name' => 'Client12'
+            ],
+        ];
+
+        $config = $this->createMock(ConfigLoader::class);
+        $config->expects($this->once())
+            ->method('load')
+            ->willReturn([ 'calendars' => $calendars ]);
+
+        return $config;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\DataStructure\Exception\InvalidCalendarException;
 use App\Factory\EventFactory;
 use InvalidArgumentException;
 use Sabre\VObject\Component\VEvent;
@@ -28,6 +29,19 @@ class CalendarService {
         $this->config = $this->configLoader->load($configPath);
     }
 
+    /**
+     * @return string[]
+     */
+    public function listCalendars(): array
+    {
+        return array_map(
+            static function (array $calendar): string {
+                return $calendar['name'];
+            },
+            $this->config['calendars'] ?? []
+        );
+    }
+
     public function getCalendar(string $name): ?array // @TODO return calendar object
     {
         foreach ($this->config['calendars'] ?? [] as $cal) {
@@ -46,13 +60,14 @@ class CalendarService {
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
+     * @throws InvalidCalendarException
      */
     public function getEvents(string $name, string $year, string $month): array
     {
         $cal = $this->getCalendar($name);
 
         if (!$cal) {
-            throw new InvalidArgumentException("Calendar $name is not configured.");
+            throw new InvalidArgumentException("Calendar $name is not configured, choose between: " . implode(', ', $this->listCalendars()));
         }
 
         $calendar = VObject\Reader::read(
@@ -63,7 +78,7 @@ class CalendarService {
         );
 
         if (!empty($calendar->validate())) {
-            throw new InvalidArgumentException('Calendar seems to be invalid.: ');
+            throw new InvalidCalendarException('Calendar seems to be invalid.: ');
         }
 
         // @TODO refactor into factory and test
