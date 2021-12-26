@@ -10,8 +10,8 @@ use App\DataStructure\Duration;
 use App\DataStructure\Event;
 use App\DataStructure\Period;
 use App\Service\CalendarService;
-use App\Service\Transformer\CliTransformer;
-use App\Service\Transformer\JsonTransformer;
+use App\Service\Formatter\CliFormatter;
+use App\Service\Formatter\JsonFormatter;
 use DateTime;
 use Exception;
 use InvalidArgumentException;
@@ -28,8 +28,8 @@ class SummaryCommand extends Command
 
     public function __construct(
         protected CalendarService $calendarService,
-        protected JsonTransformer $jsonTransformer,
-        protected CliTransformer $cliTransformer
+        protected JsonFormatter   $jsonTransformer,
+        protected CliFormatter    $cliTransformer
     ) {
         parent::__construct();
     }

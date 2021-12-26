@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Transformer;
+namespace App\Service\Formatter;
 
 use App\DataStructure\CalendarRepresentation;
 use App\DataStructure\Format;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class JsonTransformer implements TransformerInterface
+class JsonFormatter implements FormatterInterface
 {
     /**
      * @param CalendarRepresentation $calendarRepresentation
@@ -26,7 +26,7 @@ class JsonTransformer implements TransformerInterface
         );
     }
 
-    public function supportsFormat(Format $format): bool
+    public function supports(Format $format): bool
     {
         return $format === Format::JSON;
     }

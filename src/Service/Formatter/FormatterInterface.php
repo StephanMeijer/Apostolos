@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Transformer;
+namespace App\Service\Formatter;
 
 use App\DataStructure\CalendarRepresentation;
 use App\DataStructure\Format;
 use Symfony\Component\Console\Output\OutputInterface;
 
-interface TransformerInterface
+interface FormatterInterface
 {
     /**
      * @param CalendarRepresentation $calendarRepresentation
@@ -16,5 +16,5 @@ interface TransformerInterface
      */
     public function transform(CalendarRepresentation $calendarRepresentation, OutputInterface $output): void;
 
-    public function supportsFormat(Format $format): bool;
+    public function supports(Format $format): bool;
 }

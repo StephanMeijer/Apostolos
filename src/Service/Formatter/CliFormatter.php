@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Transformer;
+namespace App\Service\Formatter;
 
 use App\DataStructure\CalendarRepresentation;
 use App\DataStructure\Format;
@@ -11,7 +11,7 @@ use Exception;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CliTransformer implements TransformerInterface
+class CliFormatter implements FormatterInterface
 {
     /**
      * @param CalendarRepresentation $calendarRepresentation
@@ -39,7 +39,7 @@ class CliTransformer implements TransformerInterface
             ->render();
     }
 
-    public function supportsFormat(Format $format): bool
+    public function supports(Format $format): bool
     {
         return $format === Format::CLI;
     }
