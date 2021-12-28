@@ -11,6 +11,7 @@ use App\DataStructure\Exception\InvalidCalendarException;
 use App\DataStructure\Period;
 use App\Factory\EventFactory;
 use DateTime;
+use Exception;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;

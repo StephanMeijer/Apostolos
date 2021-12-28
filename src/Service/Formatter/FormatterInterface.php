@@ -10,10 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 interface FormatterInterface
 {
-    /**
-     * @param CalendarRepresentation $calendarRepresentation
-     * @return string Output: can be
-     */
     public function transform(CalendarRepresentation $calendarRepresentation, OutputInterface $output): void;
 
     public function supports(Format $format): bool;

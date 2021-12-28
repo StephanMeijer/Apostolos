@@ -14,7 +14,7 @@ class Period implements JsonSerializable {
     ) { }
 
     /**
-     * @return array<string, int>
+     * @return array<string, mixed>
      *
      * @throws Exception
      */

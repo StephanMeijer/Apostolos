@@ -31,14 +31,4 @@ class DateTimeFactoryTest extends KernelTestCase
 
         $this->assertEquals($dateTime, $returnedDateTime);
     }
-
-    public function testNoDateTime(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $factory = new DateTimeFactory();
-
-        $sabreText = $this->createMock(Text::class);
-        $factory->build($sabreText);
-    }
 }
