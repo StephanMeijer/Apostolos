@@ -63,48 +63,7 @@ class SummaryCommand extends Command
             throw new InvalidArgumentException('Calendar not found.');
         }
 
-        $events = $this->calendarService->getEvents(
-            $calendar->url,
-            $year,
-            $month
-        );
-
-        $periods = array_reduce(
-            $events,
-            /**
-             * @param Period[] $acc
-             * @return Period[]
-             *
-             * @throws Exception
-             */
-            static function (array $acc, Event $event): array
-            {
-                $dateEquals = static function (DateTime $a, DateTime $b): bool {
-                    return $a->format('Y-m-d') === $b->format('Y-m-d');
-                };
-
-                $found = false;
-
-                foreach ($acc as $period) {
-                    if ($dateEquals($period->date->toDateTime(), $event->start)) {
-                        $period->duration->addMinutes($event->minutes());
-                        $found = true;
-                    }
-                }
-
-                if (!$found) {
-                    $acc[] = new Period(
-                        Date::fromDateTime($event->start),
-                        new Duration($event->minutes())
-                    );
-                }
-
-                return $acc;
-            },
-            []
-        );
-
-        sort($periods);
+        $periods = $this->calendarService->getPeriods($calendar->url, $year, $month);
 
         $calendarRepresentation = new CalendarRepresentation(
             name: $input->getArgument('calendar'),
