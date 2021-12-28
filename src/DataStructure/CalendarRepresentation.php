@@ -12,7 +12,7 @@ class CalendarRepresentation implements JsonSerializable {
      * @param string $name
      * @param string $month
      * @param string $year
-     * @var Period[] $periods
+     * @param Period[] $periods
      */
     public function __construct(
         public readonly string $name,

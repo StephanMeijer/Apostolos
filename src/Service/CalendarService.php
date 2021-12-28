@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\DataStructure\CalendarConfiguration;
+use App\DataStructure\Date;
+use App\DataStructure\Duration;
 use App\DataStructure\Exception\InvalidCalendarException;
+use App\DataStructure\Period;
 use App\Factory\EventFactory;
-use InvalidArgumentException;
-use JetBrains\PhpStorm\Pure;
+use DateTime;
+use Exception;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -103,5 +106,52 @@ class CalendarService {
         );
 
         return array_values($events);
+    }
+
+    /**
+     * @return Period[]
+     */
+    public function getPeriods(string $url, string $year, string $month): array
+    {
+        $events = $this->getEvents($url, $year, $month);
+
+        $periods = array_reduce(
+            $events,
+            /**
+             * @param Period[] $acc
+             * @return Period[]
+             *
+             * @throws Exception
+             */
+            static function (array $acc, Event $event): array
+            {
+                $dateEquals = static function (DateTime $a, DateTime $b): bool {
+                    return $a->format('Y-m-d') === $b->format('Y-m-d');
+                };
+
+                $found = false;
+
+                foreach ($acc as $period) {
+                    if ($dateEquals($period->date->toDateTime(), $event->start)) {
+                        $period->duration->addMinutes($event->minutes());
+                        $found = true;
+                    }
+                }
+
+                if (!$found) {
+                    $acc[] = new Period(
+                        Date::fromDateTime($event->start),
+                        new Duration($event->minutes())
+                    );
+                }
+
+                return $acc;
+            },
+            []
+        );
+
+        sort($periods);
+
+        return $periods;
     }
 }

@@ -36,3 +36,5 @@ jobs:
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         run: vendor/bin/phpunit --coverage-clover coverage.xml
       - uses: codecov/codecov-action@v2
+      - name: PHPStan
+        run: vendor/bin/phpstan analyze -v src/
