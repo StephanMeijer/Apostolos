@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Exception\InvalidCalendarException;
 use App\Factory\EventFactory;
 use InvalidArgumentException;
+use JetBrains\PhpStorm\Pure;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -30,27 +32,30 @@ class CalendarService {
     }
 
     /**
-     * @return string[]
+     * @return CalendarConfiguration[]
      */
     public function listCalendars(): array
     {
         return array_map(
-            static function (array $calendar): string {
-                return $calendar['name'];
+            static function (array $calendar): CalendarConfiguration {
+                return new CalendarConfiguration(
+                    $calendar['name'],
+                    $calendar['url']
+                );
             },
             $this->config['calendars'] ?? []
         );
     }
 
-    public function getCalendar(string $name): ?array // @TODO return calendar object
+    public function getCalendar(string $name): ?CalendarConfiguration
     {
-        foreach ($this->config['calendars'] ?? [] as $cal) {
-            if ($cal['name'] === $name) {
-                return $cal;
-            }
-        }
-
-        return null;
+        return array_reduce(
+            $this->listCalendars(),
+            static function (?CalendarConfiguration $carry, CalendarConfiguration $calendar) use ($name): ?CalendarConfiguration {
+                return $calendar->name === $name ? $calendar : $carry;
+            },
+            null
+        );
     }
 
     /**
@@ -62,18 +67,12 @@ class CalendarService {
      * @throws ClientExceptionInterface
      * @throws InvalidCalendarException
      */
-    public function getEvents(string $name, string $year, string $month): array
+    public function getEvents(string $url, string $year, string $month): array
     {
-        $cal = $this->getCalendar($name);
-
-        if (!$cal) {
-            throw new InvalidArgumentException("Calendar $name is not configured, choose between: " . implode(', ', $this->listCalendars()));
-        }
-
         $calendar = VObject\Reader::read(
             $this
                 ->httpClient
-                ->request('GET', $cal['url'])
+                ->request('GET', $url)
                 ->getContent()
         );
 

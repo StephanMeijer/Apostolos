@@ -57,8 +57,14 @@ class SummaryCommand extends Command
         $month = $this->translateMonth($input->getOption('month'));
         $year = $this->validateYear($input->getOption('year'));
 
+        $calendar = $this->calendarService->getCalendar($input->getArgument('calendar'));
+
+        if (!$calendar) {
+            throw new InvalidArgumentException('Calendar not found.');
+        }
+
         $events = $this->calendarService->getEvents(
-            $input->getArgument('calendar'),
+            $calendar->url,
             $year,
             $month
         );

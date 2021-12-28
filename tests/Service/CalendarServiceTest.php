@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\DataStructure;
 
+use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Event;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
@@ -25,9 +26,19 @@ class CalendarServiceTest extends KernelTestCase
 
         $calendarService = new CalendarService($http, $eventFactory, $config, 'some-path');
 
+        $configurations = $calendarService->listCalendars();
+
+        $this->assertCount(2, $configurations);
+        $this->assertContainsOnlyInstancesOf(CalendarConfiguration::class, $configurations);
+
         $this->assertEquals(
-            ['Client1', 'Client12'],
-            $calendarService->listCalendars()
+            new CalendarConfiguration('Client1', 'http://example.com/events.ics'),
+            $configurations[0]
+        );
+
+        $this->assertEquals(
+            new CalendarConfiguration('Client12', 'http://example2.com/events.ics'),
+            $configurations[1]
         );
     }
 
@@ -50,7 +61,7 @@ class CalendarServiceTest extends KernelTestCase
 
         $calendarService = new CalendarService($http, new EventFactory(new DateTimeFactory()), $config, 'some-path');
 
-        $events = $calendarService->getEvents('Client1', '2021', '11');
+        $events = $calendarService->getEvents('http://example.com/events.ics', '2021', '11');
 
         $this->assertContainsOnlyInstancesOf(Event::class, $events);
         $this->assertCount(3, $events);
