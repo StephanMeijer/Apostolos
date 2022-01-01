@@ -54,7 +54,10 @@ class CalendarService
     {
         return array_reduce(
             $this->listCalendars(),
-            static function (?CalendarConfiguration $carry, CalendarConfiguration $calendar) use ($name): ?CalendarConfiguration {
+            static function (
+                ?CalendarConfiguration $carry,
+                CalendarConfiguration $calendar
+            ) use ($name): ?CalendarConfiguration {
                 return $calendar->name === $name ? $calendar : $carry;
             },
             null
@@ -70,7 +73,7 @@ class CalendarService
      * @throws ClientExceptionInterface
      * @throws InvalidCalendarException
      */
-    public function getEvents(string $url, string $year, string $month): array
+    public function getEvents(string $url, ?string $year = null, ?string $month = null): array
     {
         $calendar = VObject\Reader::read(
             $this
@@ -91,19 +94,23 @@ class CalendarService
             $calendar->select('VEVENT')
         );
 
-        $events = array_filter(
-            $events,
-            function (Event $event) use ($year, $month): bool {
-                return
-                    $month === $event
-                        ->start
-                        ->format('m') &&
+        if (!empty($year)) {
+            $events = array_filter(
+                $events,
+                function (Event $event) use ($year): bool {
+                    return $year === $event->start->format('Y');
+                }
+            );
+        }
 
-                    $year === $event
-                        ->start
-                        ->format('Y');
-            }
-        );
+        if (!empty($month)) {
+            $events = array_filter(
+                $events,
+                function (Event $event) use ($month): bool {
+                    return $month === $event->start->format('m');
+                }
+            );
+        }
 
         return array_values($events);
     }
@@ -111,7 +118,7 @@ class CalendarService
     /**
      * @return Period[]
      */
-    public function getPeriods(string $url, string $year, string $month): array
+    public function getPeriods(string $url, ?string $year = null, ?string $month = null): array
     {
         $events = $this->getEvents($url, $year, $month);
 

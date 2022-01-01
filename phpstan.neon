@@ -9,3 +9,4 @@ parameters:
         - "#Attribute class JetBrains.* does not exist#"
         - "#.* has parameter .* with no value type specified in iterable type Sabre.*#"
         - "#.*jsonSerialize.* return type has no value type specified in iterable type array#"
+        - "#.*normalize.* return type has no value type specified in iterable type array#"

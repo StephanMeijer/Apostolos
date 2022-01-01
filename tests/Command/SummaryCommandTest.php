@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataStructure;
+namespace App\Tests\Command;
 
 use App\Command\SummaryCommand;
 use App\DataStructure\Exception\InvalidCalendarException;
