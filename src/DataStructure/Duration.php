@@ -58,6 +58,11 @@ class Duration implements JsonSerializable
         ];
     }
 
+    public function toFloat(int $precision = 2): float
+    {
+        return round($this->getHours() + $this->getMinutes() / 60, $precision);
+    }
+
     /**
      * @return array<string, int>
      */

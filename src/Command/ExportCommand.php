@@ -64,7 +64,7 @@ class ExportCommand extends Command
             static function (Period $period): array {
                 return [
                     'day' => $period->date->toDateTime()->format('Y-m-d'),
-                    'duration' => $period->duration->toText(),
+                    'duration' => $period->duration->toFloat(precision: 2),
                 ];
             },
             $periods

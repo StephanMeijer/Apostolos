@@ -1,18 +1,18 @@
 [
     {
         "day": "2021-11-15",
-        "duration": "01:00"
+        "duration": 1
     },
     {
         "day": "2021-12-04",
-        "duration": "03:53"
+        "duration": 3.88
     },
     {
         "day": "2021-12-07",
-        "duration": "02:30"
+        "duration": 2.5
     },
     {
         "day": "2021-12-23",
-        "duration": "10:00"
+        "duration": 10
     }
 ]
