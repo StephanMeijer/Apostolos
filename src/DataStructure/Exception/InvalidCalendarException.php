@@ -6,6 +6,6 @@ namespace App\DataStructure\Exception;
 
 use Exception;
 
-class InvalidCalendarException extends Exception {
-
+class InvalidCalendarException extends Exception
+{
 }

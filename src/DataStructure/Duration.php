@@ -6,8 +6,11 @@ namespace App\DataStructure;
 
 use JsonSerializable;
 
-class Duration implements JsonSerializable {
-    public function __construct(private int $minutes) {}
+class Duration implements JsonSerializable
+{
+    public function __construct(private int $minutes)
+    {
+    }
 
     /**
      * @param array<string, int> $array
@@ -41,7 +44,7 @@ class Duration implements JsonSerializable {
 
     public function toText(): string
     {
-        return sprintf('%02d', $this->getHours()) . ':' . sprintf('%02d', $this->getMinutes());
+        return sprintf('%02d', $this->getHours()).':'.sprintf('%02d', $this->getMinutes());
     }
 
     /**
@@ -51,7 +54,7 @@ class Duration implements JsonSerializable {
     {
         return [
             'hours' => $this->getHours(),
-            'minutes' => $this->getMinutes()
+            'minutes' => $this->getMinutes(),
         ];
     }
 

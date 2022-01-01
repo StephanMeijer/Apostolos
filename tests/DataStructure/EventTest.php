@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\DataStructure;
 
-use DateTime;
 use App\DataStructure\Event;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class EventTest extends KernelTestCase

@@ -11,9 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class JsonFormatter implements FormatterInterface
 {
     /**
-     * @param CalendarRepresentation $calendarRepresentation
-     * @param OutputInterface $output
-     *
      * @throws \JsonException
      */
     public function transform(CalendarRepresentation $calendarRepresentation, OutputInterface $output): void
@@ -28,6 +25,6 @@ class JsonFormatter implements FormatterInterface
 
     public function supports(Format $format): bool
     {
-        return $format === Format::JSON;
+        return Format::JSON === $format;
     }
 }

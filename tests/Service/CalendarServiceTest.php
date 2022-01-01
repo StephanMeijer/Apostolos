@@ -6,14 +6,13 @@ namespace App\Tests\DataStructure;
 
 use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Event;
+use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
-use App\Factory\DateTimeFactory;
-
 use App\Service\ConfigLoader;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class CalendarServiceTest extends KernelTestCase
 {
@@ -48,7 +47,7 @@ class CalendarServiceTest extends KernelTestCase
         $response
             ->method('getContent')
             ->willReturn(
-                file_get_contents(__DIR__ . '/Fixtures/events.ics')
+                file_get_contents(__DIR__.'/Fixtures/events.ics')
             );
 
         $config = $this->configMock();
@@ -82,7 +81,7 @@ class CalendarServiceTest extends KernelTestCase
                     new \DateTime('2021-11-12 01:20:00.000000'),
                     new \DateTime('2021-11-12 05:05:00.000000'),
                     'Test event123'
-                )
+                ),
             ],
             $events
         );
@@ -94,19 +93,19 @@ class CalendarServiceTest extends KernelTestCase
             [
                 'rate' => 123,
                 'url' => 'http://example.com/events.ics',
-                'name' => 'Client1'
+                'name' => 'Client1',
             ],
             [
                 'rate' => 12,
                 'url' => 'http://example2.com/events.ics',
-                'name' => 'Client12'
+                'name' => 'Client12',
             ],
         ];
 
         $config = $this->createMock(ConfigLoader::class);
         $config->expects($this->once())
             ->method('load')
-            ->willReturn([ 'calendars' => $calendars ]);
+            ->willReturn(['calendars' => $calendars]);
 
         return $config;
     }

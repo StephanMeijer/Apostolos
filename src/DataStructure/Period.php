@@ -7,11 +7,13 @@ namespace App\DataStructure;
 use Exception;
 use JsonSerializable;
 
-class Period implements JsonSerializable {
+class Period implements JsonSerializable
+{
     public function __construct(
         public Date $date,
         public Duration $duration
-    ) { }
+    ) {
+    }
 
     /**
      * @return array<string, mixed>
@@ -21,8 +23,8 @@ class Period implements JsonSerializable {
     public function jsonSerialize(): array
     {
         return [
-            "day" => $this->date->toDateTime()->format('Y-m-d'),
-            "duration" => $this->duration->toArray()
+            'day' => $this->date->toDateTime()->format('Y-m-d'),
+            'duration' => $this->duration->toArray(),
         ];
     }
 }

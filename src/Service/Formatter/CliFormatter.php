@@ -14,8 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CliFormatter implements FormatterInterface
 {
     /**
-     * @param CalendarRepresentation $calendarRepresentation
-     * @param OutputInterface $output
      * @throws Exception
      */
     public function transform(CalendarRepresentation $calendarRepresentation, OutputInterface $output): void
@@ -23,14 +21,14 @@ class CliFormatter implements FormatterInterface
         $table = new Table($output);
         $table
             ->setHeaderTitle("Hours of $calendarRepresentation->year-$calendarRepresentation->month")
-            ->setFooterTitle("Total: " . $calendarRepresentation->getTotalDuration()->toText())
+            ->setFooterTitle('Total: '.$calendarRepresentation->getTotalDuration()->toText())
             ->setHeaders(['Day (start)', 'Duration'])
             ->setRows(
                 array_map(
                     static function (Period $period): array {
                         return [
                             $period->date->toDateTime()->format('d-m-Y'),
-                            $period->duration->toText()
+                            $period->duration->toText(),
                         ];
                     },
                     $calendarRepresentation->periods
@@ -41,6 +39,6 @@ class CliFormatter implements FormatterInterface
 
     public function supports(Format $format): bool
     {
-        return $format === Format::CLI;
+        return Format::CLI === $format;
     }
 }

@@ -15,25 +15,25 @@ class DateTest extends KernelTestCase
         $date = new Date(2021, 12, 13);
 
         $this->assertEquals(2021, $date->year);
-        $this->assertEquals(12,   $date->month);
-        $this->assertEquals(13,   $date->day);
+        $this->assertEquals(12, $date->month);
+        $this->assertEquals(13, $date->day);
     }
 
     public function testToDateTimeConversion(): void
     {
         $date = new Date(2021, 12, 13);
 
-        $this->assertEquals(new DateTime("2021-12-13"), $date->toDateTime());
+        $this->assertEquals(new DateTime('2021-12-13'), $date->toDateTime());
     }
 
     public function testFromDateTime(): void
     {
         $date = Date::fromDateTime(
-            new DateTime("2021-12-13")
+            new DateTime('2021-12-13')
         );
 
         $this->assertEquals(2021, $date->year);
-        $this->assertEquals(12,   $date->month);
-        $this->assertEquals(13,   $date->day);
+        $this->assertEquals(12, $date->month);
+        $this->assertEquals(13, $date->day);
     }
 }

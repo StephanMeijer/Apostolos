@@ -7,12 +7,14 @@ namespace App\DataStructure;
 use DateTime;
 use Exception;
 
-class Date {
+class Date
+{
     public function __construct(
         public int $year,
         public int $month,
         public int $day
-    ) { }
+    ) {
+    }
 
     public static function fromDateTime(DateTime $dateTime): self
     {
@@ -28,6 +30,6 @@ class Date {
      */
     public function toDateTime(): DateTime
     {
-        return new DateTime(join('-', [ $this->year, $this->month, $this->day ]));
+        return new DateTime(join('-', [$this->year, $this->month, $this->day]));
     }
 }

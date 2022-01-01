@@ -13,13 +13,12 @@ use App\Service\ConfigLoader;
 use App\Service\Formatter\CliFormatter;
 use App\Service\Formatter\JsonFormatter;
 use InvalidArgumentException;
+use Sabre\VObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\Component\Console\Command\Command;
-
-use Sabre\VObject;
 
 class SummaryCommandTest extends KernelTestCase
 {
@@ -39,13 +38,13 @@ class SummaryCommandTest extends KernelTestCase
         $realConfigLoader = new ConfigLoader();
 
         $response = $this->createMock(ResponseInterface::class);
-        $exception !== InvalidArgumentException::class && $response
+        InvalidArgumentException::class !== $exception && $response
             ->expects($this->once())
             ->method('getContent')
             ->willReturn($inputICS);
 
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $exception !== InvalidArgumentException::class && $httpClient
+        InvalidArgumentException::class !== $exception && $httpClient
             ->expects($this->once())
             ->method('request')
             ->with(
@@ -56,12 +55,12 @@ class SummaryCommandTest extends KernelTestCase
 
         $eventFactory = new EventFactory(new DateTimeFactory());
         $configLoader = $this->createMock(ConfigLoader::class);
-        $exception !== InvalidArgumentException::class && $configLoader
+        InvalidArgumentException::class !== $exception && $configLoader
             ->expects($this->once())
             ->method('load')
             ->with('~/.apostolos.yml')
             ->willReturn(
-                $realConfigLoader->load(__DIR__ . '/Fixtures/apostolos.yml')
+                $realConfigLoader->load(__DIR__.'/Fixtures/apostolos.yml')
             );
 
         $command = new SummaryCommand(
@@ -84,7 +83,7 @@ class SummaryCommandTest extends KernelTestCase
     public function testInvalidTestData(): void
     {
         $calendar = VObject\Reader::read(
-            file_get_contents(__DIR__ . '/Fixtures/invalid.ics')
+            file_get_contents(__DIR__.'/Fixtures/invalid.ics')
         );
 
         $this->assertNotEmpty($calendar->validate());
@@ -97,108 +96,108 @@ class SummaryCommandTest extends KernelTestCase
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => '12',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.txt'),
             ],
             'Test 2021 december' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => 'december',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.txt'),
             ],
             'Test 2021 dec' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => 'dec',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.txt'),
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.txt'),
             ],
             'Test 2021 dec json' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => 'dec',
                     '--year' => '2021',
-                    '--format' => 'json'
+                    '--format' => 'json',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => file_get_contents(__DIR__ . '/Fixtures/Test-2021-12.json'),
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.json'),
             ],
             'Test 2021 abc (invalid year alphanumeric)' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => '12',
-                    '--year' => 'abc'
+                    '--year' => 'abc',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => "",
-                'exception' => InvalidArgumentException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => '',
+                'exception' => InvalidArgumentException::class,
             ],
             'Test 2021 abc (invalid month alphanumeric)' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => 'abc',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => "",
-                'exception' => InvalidArgumentException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => '',
+                'exception' => InvalidArgumentException::class,
             ],
             'Test 2021 -1 (invalid month numeric)' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => '-1',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => "",
-                'exception' => InvalidArgumentException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => '',
+                'exception' => InvalidArgumentException::class,
             ],
             'Test 2021 0 (invalid month numeric)' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => '0',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => "",
-                'exception' => InvalidArgumentException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => '',
+                'exception' => InvalidArgumentException::class,
             ],
             'Test 2021 14 (invalid month numeric)' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => '14',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => "",
-                'exception' => InvalidArgumentException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => '',
+                'exception' => InvalidArgumentException::class,
             ],
             'NonExistent 2021 12 (invalid calendar)' => [
                 'args' => [
                     'calendar' => 'NonExistent',
                     '--month' => '12',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/ical.ics'),
-                'output' => "",
-                'exception' => InvalidArgumentException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'output' => '',
+                'exception' => InvalidArgumentException::class,
             ],
             'Test 2021 12 (invalid ICS format)' => [
                 'args' => [
                     'calendar' => 'Test',
                     '--month' => '12',
-                    '--year' => '2021'
+                    '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__ . '/Fixtures/invalid.ics'),
-                'output' => "",
-                'exception' => InvalidCalendarException::class
+                'inputICS' => file_get_contents(__DIR__.'/Fixtures/invalid.ics'),
+                'output' => '',
+                'exception' => InvalidCalendarException::class,
             ],
         ];
     }

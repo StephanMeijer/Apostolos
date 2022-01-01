@@ -7,11 +7,8 @@ namespace App\Factory;
 use DateTime;
 use Sabre\VObject\Property;
 
-class DateTimeFactory {
-    /**
-     * @param Property\ICalendar\DateTime $dateTime
-     * @return DateTime
-     */
+class DateTimeFactory
+{
     public function build(Property\ICalendar\DateTime $dateTime): DateTime
     {
         return DateTime::createFromImmutable($dateTime->getDateTime());

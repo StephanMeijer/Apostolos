@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\DataStructure;
 
+use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use DateTime;
-
-use App\Factory\DateTimeFactory;
-
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject\Property\ICalendar\DateTime as SabreDateTime;
 use Sabre\VObject\Property\Text;
@@ -24,7 +22,7 @@ class EventFactoryTest extends KernelTestCase
         $endDT = $this->createMock(DateTime::class);
         $endSabre = $this->createMock(SabreDateTime::class);
 
-        $summaryText = "This is a lorem ipsum dolor sit amet.";
+        $summaryText = 'This is a lorem ipsum dolor sit amet.';
         $summary = $this->createMock(Text::class);
         $summary
             ->expects($this->once())

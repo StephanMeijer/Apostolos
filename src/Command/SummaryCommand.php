@@ -5,14 +5,9 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\DataStructure\CalendarRepresentation;
-use App\DataStructure\Date;
-use App\DataStructure\Duration;
-use App\DataStructure\Event;
-use App\DataStructure\Period;
 use App\Service\CalendarService;
 use App\Service\Formatter\CliFormatter;
 use App\Service\Formatter\JsonFormatter;
-use DateTime;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
@@ -28,8 +23,8 @@ class SummaryCommand extends Command
 
     public function __construct(
         protected CalendarService $calendarService,
-        protected JsonFormatter   $jsonTransformer,
-        protected CliFormatter    $cliTransformer
+        protected JsonFormatter $jsonTransformer,
+        protected CliFormatter $cliTransformer
     ) {
         parent::__construct();
     }
@@ -38,17 +33,13 @@ class SummaryCommand extends Command
     {
         $this
             ->setHelp('Summarize hours.')
-            ->addArgument("calendar", InputArgument::REQUIRED)
+            ->addArgument('calendar', InputArgument::REQUIRED)
             ->addOption('month', 'm', InputOption::VALUE_OPTIONAL, 'Month', date('m'))
             ->addOption('year', 'y', InputOption::VALUE_OPTIONAL, 'Year', date('Y'))
             ->addOption('format', 'f', InputOption::VALUE_OPTIONAL, 'Year', 'text');
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int
-     *
      * @throws Exception
      * @throws TransportExceptionInterface
      */
@@ -99,7 +90,7 @@ class SummaryCommand extends Command
             'january', 'february', 'march',
             'april', 'may', 'june',
             'july', 'august', 'september',
-            'october', 'november', 'december'
+            'october', 'november', 'december',
         ];
 
         foreach ($months as $i => $possibleMonth) {
@@ -108,6 +99,6 @@ class SummaryCommand extends Command
             }
         }
 
-        throw new InvalidArgumentException("Invalid month");
+        throw new InvalidArgumentException('Invalid month');
     }
 }

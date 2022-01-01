@@ -7,29 +7,29 @@ namespace App\Service;
 use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Date;
 use App\DataStructure\Duration;
+use App\DataStructure\Event;
 use App\DataStructure\Exception\InvalidCalendarException;
 use App\DataStructure\Period;
 use App\Factory\EventFactory;
 use DateTime;
 use Exception;
-use Sabre\VObject\Component\VEvent;
 use Sabre\VObject;
+use Sabre\VObject\Component\VEvent;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-use App\DataStructure\Event;
-
-class CalendarService {
+class CalendarService
+{
     protected mixed $config;
 
     public function __construct(
         protected HttpClientInterface $httpClient,
-        protected EventFactory        $eventFactory,
-        protected ConfigLoader        $configLoader,
-        protected string              $configPath = '~/.apostolos.yml'
+        protected EventFactory $eventFactory,
+        protected ConfigLoader $configLoader,
+        protected string $configPath = '~/.apostolos.yml'
     ) {
         $this->config = $this->configLoader->load($configPath);
     }
@@ -88,7 +88,7 @@ class CalendarService {
             function (VEvent $event): Event {
                 return $this->eventFactory->build($event);
             },
-            $calendar->select("VEVENT")
+            $calendar->select('VEVENT')
         );
 
         $events = array_filter(
@@ -119,12 +119,12 @@ class CalendarService {
             $events,
             /**
              * @param Period[] $acc
+             *
              * @return Period[]
              *
              * @throws Exception
              */
-            static function (array $acc, Event $event): array
-            {
+            static function (array $acc, Event $event): array {
                 $dateEquals = static function (DateTime $a, DateTime $b): bool {
                     return $a->format('Y-m-d') === $b->format('Y-m-d');
                 };

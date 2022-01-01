@@ -7,8 +7,11 @@ namespace App\Factory;
 use App\DataStructure\Event;
 use Sabre\VObject\Component\VEvent;
 
-class EventFactory {
-    public function __construct(private DateTimeFactory $dateTimeFactory) {}
+class EventFactory
+{
+    public function __construct(private DateTimeFactory $dateTimeFactory)
+    {
+    }
 
     public function build(VEvent $VEvent): Event
     {

@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\DataStructure;
 
 use App\Factory\DateTimeFactory;
-
 use DateTime;
 use DateTimeImmutable;
-use InvalidArgumentException;
-use Sabre\VObject\Property\Text;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
 use Sabre\VObject\Property\ICalendar\DateTime as SabreDateTime;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DateTimeFactoryTest extends KernelTestCase
 {

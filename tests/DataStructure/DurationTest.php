@@ -38,20 +38,20 @@ class DurationTest extends KernelTestCase
     public function testToText(): void
     {
         $duration = new Duration(123);
-        $this->assertEquals("02:03", $duration->toText());
+        $this->assertEquals('02:03', $duration->toText());
     }
 
     public function testToArray(): void
     {
         $duration = new Duration(123);
-        $this->assertEquals([ 'minutes' => 3, 'hours' => 2 ], $duration->toArray());
+        $this->assertEquals(['minutes' => 3, 'hours' => 2], $duration->toArray());
     }
 
     public function testFromArray(): void
     {
         $duration = Duration::fromArray([
             'hours' => 12,
-            'minutes' => 13
+            'minutes' => 13,
         ]);
 
         $this->assertEquals(12, $duration->getHours());
