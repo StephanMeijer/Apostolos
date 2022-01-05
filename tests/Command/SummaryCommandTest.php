@@ -22,6 +22,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class SummaryCommandTest extends KernelTestCase
 {
+    use CommandTestTrait;
+
     /**
      * @dataProvider provider
      */
@@ -35,33 +37,22 @@ class SummaryCommandTest extends KernelTestCase
             $this->expectException($exception);
         }
 
-        $realConfigLoader = new ConfigLoader();
-
-        $response = $this->createMock(ResponseInterface::class);
-        InvalidArgumentException::class !== $exception && $response
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn($inputICS);
-
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        InvalidArgumentException::class !== $exception && $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->with(
-                'GET',
-                'https://calendar.google.com/calendar/ical/example/public/basic.ics'
-            )
-            ->willReturn($response);
+        if (InvalidArgumentException::class === $exception) {
+            $httpClient = $this->createMock(HttpClientInterface::class);
+            $configLoader = $this->createMock(ConfigLoader::class);
+        } else {
+            $httpClient = $this->httpClientRespondingFixtures(
+                [
+                    [
+                        'url' => 'https://calendar.google.com/calendar/ical/example/public/basic.ics',
+                        'fixture' => $inputICS
+                    ]
+                ]
+            );
+            $configLoader = $this->configLoaderLoadingFixture('apostolos.yml');
+        }
 
         $eventFactory = new EventFactory(new DateTimeFactory());
-        $configLoader = $this->createMock(ConfigLoader::class);
-        InvalidArgumentException::class !== $exception && $configLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with('~/.apostolos.yml')
-            ->willReturn(
-                $realConfigLoader->load(__DIR__.'/Fixtures/apostolos.yml')
-            );
 
         $command = new SummaryCommand(
             new CalendarService(
@@ -98,7 +89,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '12',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.txt'),
             ],
             'Test 2021 december' => [
@@ -107,7 +98,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => 'december',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.txt'),
             ],
             'Test 2021 dec' => [
@@ -116,7 +107,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => 'dec',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.txt'),
             ],
             'Test 2021 dec json' => [
@@ -126,7 +117,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--year' => '2021',
                     '--format' => 'json',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => file_get_contents(__DIR__.'/Fixtures/Test-2021-12.json'),
             ],
             'Test 2021 abc (invalid year alphanumeric)' => [
@@ -135,7 +126,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '12',
                     '--year' => 'abc',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => '',
                 'exception' => InvalidArgumentException::class,
             ],
@@ -145,7 +136,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => 'abc',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => '',
                 'exception' => InvalidArgumentException::class,
             ],
@@ -155,7 +146,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '-1',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => '',
                 'exception' => InvalidArgumentException::class,
             ],
@@ -165,7 +156,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '0',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => '',
                 'exception' => InvalidArgumentException::class,
             ],
@@ -175,7 +166,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '14',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => '',
                 'exception' => InvalidArgumentException::class,
             ],
@@ -185,7 +176,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '12',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/ical.ics'),
+                'inputICS' => 'ical.ics',
                 'output' => '',
                 'exception' => InvalidArgumentException::class,
             ],
@@ -195,7 +186,7 @@ class SummaryCommandTest extends KernelTestCase
                     '--month' => '12',
                     '--year' => '2021',
                 ],
-                'inputICS' => file_get_contents(__DIR__.'/Fixtures/invalid.ics'),
+                'inputICS' => 'invalid.ics',
                 'output' => '',
                 'exception' => InvalidCalendarException::class,
             ],

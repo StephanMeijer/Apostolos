@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Period;
 use App\Service\CalendarService;
 use Exception;
@@ -25,9 +26,7 @@ class ExportCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->setHelp('Export hours.')
-            ->addArgument('calendar', InputArgument::REQUIRED);
+        $this->setHelp('Export hours.');
     }
 
     /**
@@ -35,20 +34,29 @@ class ExportCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $config = $this->calendarService->getCalendar($input->getArgument('calendar'));
+        $configs = $this->calendarService->listCalendars();
 
-        if (!$config) {
-            throw new InvalidArgumentException('Calendar not found.');
-        }
+        $periods = array_reduce(
+            $configs,
 
-        $periods = $this->calendarService->getPeriods($config->url);
-
-        $output->writeln(
-            json_encode(
-                $this->normalize($periods),
-                JSON_PRETTY_PRINT
-            )
+            /**
+             * @param Period[] $periods
+             * @return Period[]
+             */
+            function (array $periods, CalendarConfiguration $configuration): array
+            {
+                return array_merge(
+                    $periods,
+                    $this->normalize(
+                        $this->calendarService->getPeriods($configuration->url),
+                        $configuration->name
+                    )
+                );
+            },
+            []
         );
+
+        $output->writeln(json_encode($periods,JSON_PRETTY_PRINT));
 
         return Command::SUCCESS;
     }
@@ -58,13 +66,14 @@ class ExportCommand extends Command
      *
      * @throws Exception
      */
-    private function normalize(array $periods): array
+    private function normalize(array $periods, string $calendar): array
     {
         return array_map(
-            static function (Period $period): array {
+            static function (Period $period) use ($calendar): array {
                 return [
                     'day' => $period->date->toDateTime()->format('Y-m-d'),
                     'duration' => $period->duration->toFloat(precision: 2),
+                    'calendar' => $calendar
                 ];
             },
             $periods

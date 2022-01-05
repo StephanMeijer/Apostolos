@@ -8,44 +8,32 @@ use App\Command\ExportCommand;
 use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
-use App\Service\ConfigLoader;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class ExportCommandTest extends KernelTestCase
 {
+    use CommandTestTrait;
+
     public function testWithExampleDataset(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
-        $response
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(file_get_contents(__DIR__.'/Fixtures/ical.ics'));
-
         $eventFactory = new EventFactory(new DateTimeFactory());
 
-        $realConfigLoader = new ConfigLoader();
-        $configLoader = $this->createMock(ConfigLoader::class);
-        $configLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with('~/.apostolos.yml')
-            ->willReturn(
-                $realConfigLoader->load(__DIR__.'/Fixtures/apostolos.yml')
-            );
+        $configLoader = $this->configLoaderLoadingFixture('apostolos.yml');
 
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->with(
-                'GET',
-                'https://calendar.google.com/calendar/ical/example/public/basic.ics'
-            )
-            ->willReturn($response);
+        $httpClient = $this->httpClientRespondingFixtures(
+            [
+                [
+                    'url' => 'https://calendar.google.com/calendar/ical/example/public/basic.ics',
+                    'fixture' => 'ical.ics'
+                ],
+                [
+                    'url' => 'https://calendar.google.com/basic.ics',
+                    'fixture' => 'ical.ics'
+                ]
+            ]
+        );
 
         $command = new ExportCommand(
             new CalendarService(
@@ -54,7 +42,7 @@ class ExportCommandTest extends KernelTestCase
         );
 
         $tester = new CommandTester($command);
-        $code = $tester->execute(['calendar' => 'Test']);
+        $code = $tester->execute([]);
 
         $this->assertSame(Command::SUCCESS, $code);
         $this->assertSame(

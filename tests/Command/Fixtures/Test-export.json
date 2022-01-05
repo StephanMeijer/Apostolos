@@ -1,18 +1,42 @@
 [
     {
         "day": "2021-11-15",
-        "duration": 1
+        "duration": 1,
+        "calendar": "Test"
     },
     {
         "day": "2021-12-04",
-        "duration": 3.88
+        "duration": 3.88,
+        "calendar": "Test"
     },
     {
         "day": "2021-12-07",
-        "duration": 2.5
+        "duration": 2.5,
+        "calendar": "Test"
     },
     {
         "day": "2021-12-23",
-        "duration": 10
+        "duration": 10,
+        "calendar": "Test"
+    },
+    {
+        "day": "2021-11-15",
+        "duration": 1,
+        "calendar": "Test2"
+    },
+    {
+        "day": "2021-12-04",
+        "duration": 3.88,
+        "calendar": "Test2"
+    },
+    {
+        "day": "2021-12-07",
+        "duration": 2.5,
+        "calendar": "Test2"
+    },
+    {
+        "day": "2021-12-23",
+        "duration": 10,
+        "calendar": "Test2"
     }
 ]
