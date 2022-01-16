@@ -9,6 +9,7 @@ use App\DataStructure\Event;
 use App\Exception\AdapterDoesNotSupportActionException;
 use App\Exception\InvalidCalendarException;
 use App\Factory\EventFactory;
+use Sabre\VObject;
 use Sabre\VObject\Component\VEvent;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -16,9 +17,8 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-use Sabre\VObject;
-
-class ICalendarAdapter implements CalendarAdapterInterface {
+class ICalendarAdapter implements CalendarAdapterInterface
+{
     public function __construct(
         protected HttpClientInterface $httpClient,
         protected EventFactory $eventFactory,
@@ -26,7 +26,6 @@ class ICalendarAdapter implements CalendarAdapterInterface {
         // @TODO better loading of parameters
         protected string $url
     ) {
-
     }
 
     /**
