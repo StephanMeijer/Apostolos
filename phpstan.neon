@@ -4,7 +4,7 @@ parameters:
         - src
         - tests
     ignoreErrors:
-        - "#Access to undefined constant .*Format::.*#"
+        #- "#Access to undefined constant .*Format::.*#"
         - "#Access to an undefined property Sabre.*#"
         - "#Attribute class JetBrains.* does not exist#"
         - "#.* has parameter .* with no value type specified in iterable type Sabre.*#"
