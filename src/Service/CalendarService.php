@@ -8,9 +8,10 @@ use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Date;
 use App\DataStructure\Duration;
 use App\DataStructure\Event;
-use App\DataStructure\Exception\InvalidCalendarException;
+use App\Exception\InvalidCalendarException;
 use App\DataStructure\Period;
 use App\Factory\EventFactory;
+use App\Service\CalendarAdapter\ICalendarAdapter;
 use DateTime;
 use Exception;
 use Sabre\VObject;
@@ -75,24 +76,9 @@ class CalendarService
      */
     public function getEvents(string $url, ?string $year = null, ?string $month = null): array
     {
-        $calendar = VObject\Reader::read(
-            $this
-                ->httpClient
-                ->request('GET', $url)
-                ->getContent()
-        );
+        $icalAdapter = new ICalendarAdapter($this->httpClient, $this->eventFactory, $url);
 
-        if (!empty($calendar->validate())) {
-            throw new InvalidCalendarException('Calendar seems to be invalid.: ');
-        }
-
-        // @TODO refactor into factory and test
-        $events = array_map(
-            function (VEvent $event): Event {
-                return $this->eventFactory->build($event);
-            },
-            $calendar->select('VEVENT')
-        );
+        $events = $icalAdapter->list();
 
         if (!empty($year)) {
             $events = array_filter(
@@ -117,6 +103,12 @@ class CalendarService
 
     /**
      * @return Period[]
+     *
+     * @throws ClientExceptionInterface
+     * @throws InvalidCalendarException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public function getPeriods(string $url, ?string $year = null, ?string $month = null): array
     {

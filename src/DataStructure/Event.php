@@ -10,6 +10,7 @@ use DateTime;
 class Event
 {
     public function __construct(
+        public ?string $identifier,
         public DateTime $start,
         public DateTime $end,
         public string $description

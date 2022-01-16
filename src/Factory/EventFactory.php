@@ -13,9 +13,10 @@ class EventFactory
     {
     }
 
-    public function build(VEvent $VEvent): Event
+    public function buildFromVEvent(VEvent $VEvent): Event
     {
         return new Event(
+            null,
             $this->dateTimeFactory->build($VEvent->DTSTART),
             $this->dateTimeFactory->build($VEvent->DTEND),
             $VEvent->SUMMARY->getValue()

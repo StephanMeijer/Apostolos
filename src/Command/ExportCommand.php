@@ -6,13 +6,16 @@ namespace App\Command;
 
 use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Period;
+use App\Exception\InvalidCalendarException;
 use App\Service\CalendarService;
 use Exception;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class ExportCommand extends Command
 {
@@ -41,7 +44,14 @@ class ExportCommand extends Command
 
             /**
              * @param Period[] $periods
+             * @param CalendarConfiguration $configuration
              * @return Period[]
+             *
+             * @throws InvalidCalendarException
+             * @throws ClientExceptionInterface
+             * @throws RedirectionExceptionInterface
+             * @throws ServerExceptionInterface
+             * @throws TransportExceptionInterface
              */
             function (array $periods, CalendarConfiguration $configuration): array
             {

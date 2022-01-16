@@ -41,7 +41,6 @@ class SummaryCommand extends Command
 
     /**
      * @throws Exception
-     * @throws TransportExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {

@@ -56,7 +56,7 @@ class EventFactoryTest extends KernelTestCase
 
         $factory = new EventFactory($dateTimeFactory);
 
-        $eventOut = $factory->build($eventIn);
+        $eventOut = $factory->buildFromVEvent($eventIn);
 
         $this->assertSame($startDT, $eventOut->start);
         $this->assertSame($endDT, $eventOut->end);

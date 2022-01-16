@@ -10,6 +10,7 @@ use App\Factory\DateTimeFactory;
 use App\Factory\EventFactory;
 use App\Service\CalendarService;
 use App\Service\ConfigLoader;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -68,18 +69,21 @@ class CalendarServiceTest extends KernelTestCase
         $this->assertEquals(
             [
                 new Event(
-                    new \DateTime('2021-11-08 12:10:00.000000'),
-                    new \DateTime('2021-11-08 20:35:00.000000'),
+                    null,
+                    new DateTime('2021-11-08 12:10:00.000000'),
+                    new DateTime('2021-11-08 20:35:00.000000'),
                     'Test event'
                 ),
                 new Event(
-                    new \DateTime('2021-11-12 01:05:00.000000'),
-                    new \DateTime('2021-11-12 05:05:00.000000'),
+                    null,
+                    new DateTime('2021-11-12 01:05:00.000000'),
+                    new DateTime('2021-11-12 05:05:00.000000'),
                     'Test event'
                 ),
                 new Event(
-                    new \DateTime('2021-11-12 01:20:00.000000'),
-                    new \DateTime('2021-11-12 05:05:00.000000'),
+                    null,
+                    new DateTime('2021-11-12 01:20:00.000000'),
+                    new DateTime('2021-11-12 05:05:00.000000'),
                     'Test event123'
                 ),
             ],
