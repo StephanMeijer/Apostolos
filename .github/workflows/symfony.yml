@@ -1,10 +1,6 @@
 name: Symfony
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, fork, pull_request]
 
 jobs:
   docker:
