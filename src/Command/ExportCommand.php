@@ -58,7 +58,7 @@ class ExportCommand extends Command
                 return array_merge(
                     $periods,
                     $this->normalize(
-                        $this->calendarService->getPeriods($configuration->url),
+                        $this->calendarService->getPeriods($configuration->url, null),
                         $configuration->name
                     )
                 );

@@ -8,14 +8,12 @@ use App\DataStructure\CalendarConfiguration;
 use App\DataStructure\Date;
 use App\DataStructure\Duration;
 use App\DataStructure\Event;
-use App\Exception\InvalidCalendarException;
 use App\DataStructure\Period;
+use App\Exception\InvalidCalendarException;
 use App\Factory\EventFactory;
 use App\Service\CalendarAdapter\ICalendarAdapter;
 use DateTime;
 use Exception;
-use Sabre\VObject;
-use Sabre\VObject\Component\VEvent;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -66,6 +64,7 @@ class CalendarService
     }
 
     /**
+     * @param string[] $days
      * @return Event[]
      *
      * @throws TransportExceptionInterface
@@ -74,26 +73,17 @@ class CalendarService
      * @throws ClientExceptionInterface
      * @throws InvalidCalendarException
      */
-    public function getEvents(string $url, ?string $year = null, ?string $month = null): array
+    public function getEvents(string $url, ?array $days): array
     {
         $icalAdapter = new ICalendarAdapter($this->httpClient, $this->eventFactory, $url);
 
         $events = $icalAdapter->list();
 
-        if (!empty($year)) {
+        if (!is_null($days)) {
             $events = array_filter(
                 $events,
-                function (Event $event) use ($year): bool {
-                    return $year === $event->start->format('Y');
-                }
-            );
-        }
-
-        if (!empty($month)) {
-            $events = array_filter(
-                $events,
-                function (Event $event) use ($month): bool {
-                    return $month === $event->start->format('m');
+                function (Event $event) use ($days): bool {
+                    return in_array($event->start->format('Y-m-d'), $days);
                 }
             );
         }
@@ -102,6 +92,8 @@ class CalendarService
     }
 
     /**
+     * @param string[] $days
+     *
      * @return Period[]
      *
      * @throws ClientExceptionInterface
@@ -110,9 +102,9 @@ class CalendarService
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getPeriods(string $url, ?string $year = null, ?string $month = null): array
+    public function getPeriods(string $url, ?array $days): array
     {
-        $events = $this->getEvents($url, $year, $month);
+        $events = $this->getEvents($url, $days);
 
         $periods = array_reduce(
             $events,

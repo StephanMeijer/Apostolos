@@ -8,6 +8,7 @@ use App\DataStructure\CalendarRepresentation;
 use App\Service\CalendarService;
 use App\Service\Formatter\CliFormatter;
 use App\Service\Formatter\JsonFormatter;
+use DateTime;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
@@ -40,6 +41,21 @@ class SummaryCommand extends Command
     }
 
     /**
+     * @param string $year
+     * @param string $month
+     * @return string[]
+     */
+    protected function getDaysInMonth(string $year, string $month): iterable
+    {
+        $date = new DateTime("$year-$month-01");
+
+        while ((int) $date->format('n') === (int) $month) {
+            yield $date->format('Y-m-d');
+            $date->modify('+1 day');
+        }
+    }
+
+    /**
      * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -47,13 +63,15 @@ class SummaryCommand extends Command
         $month = $this->translateMonth($input->getOption('month'));
         $year = $this->validateYear($input->getOption('year'));
 
+        $days = $this->getDaysInMonth($year, $month);
+
         $calendar = $this->calendarService->getCalendar($input->getArgument('calendar'));
 
         if (!$calendar) {
             throw new InvalidArgumentException('Calendar not found.');
         }
 
-        $periods = $this->calendarService->getPeriods($calendar->url, $year, $month);
+        $periods = $this->calendarService->getPeriods($calendar->url, [...$days]);
 
         $calendarRepresentation = new CalendarRepresentation(
             name: $input->getArgument('calendar'),

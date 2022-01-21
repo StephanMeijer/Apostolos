@@ -30,6 +30,9 @@ class ICalAdapterTest extends KernelTestCase
         $adapter->$methodName($this->createMock(Event::class));
     }
 
+    /**
+     * @return string[][]
+     */
     public function failingMethodNamesProvider(): array
     {
         return [['create'], ['delete'], ['update']];
